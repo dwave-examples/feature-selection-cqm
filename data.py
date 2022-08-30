@@ -140,3 +140,14 @@ class DataSet:
         """
         indices = list(range(np.size(self.X, 1)))
         return np.mean([self.score_indices_cv(indices) for i in range(reps)])
+
+
+if __name__ == '__main__':
+    # Compute baseline scores, which are stored as part of the DataSet
+    # definitions.
+
+    dataset_names = ('titanic', 'scene')
+
+    for name in dataset_names:
+        score = DataSet(name).score_baseline_cv()
+        print(f'Baseline score for {name}: {score}')
