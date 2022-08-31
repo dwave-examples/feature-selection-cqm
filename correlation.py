@@ -5,7 +5,7 @@
 Reference:
 
 Milne, Andrew, Maxwell Rounds, and Phil Goddard. 2017. "Optimal Feature
-Selection in Credit Scoring and Classification Using a Quantum Annealing."
+Selection in Credit Scoring and Classification Using a Quantum Annealer."
 1QBit; White Paper.
 <https://1qbit.com/whitepaper/optimal-feature-selection-in-credit-scoring-classification-using-quantum-annealer/>.
 """
