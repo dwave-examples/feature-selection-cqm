@@ -30,18 +30,18 @@ def solve_feature_selection_cqm(cqm, sampler=None, return_indices=True, return_e
         sampler = LeapHybridCQMSampler()
 
     sampler_args.setdefault('label', 'Feature Selection')
-    results = sampler.sample_cqm(cqm, **sampler_args)
-    return postprocess_cqm_results(cqm, results, return_indices, return_energy)
+    sampleset = sampler.sample_cqm(cqm, **sampler_args)
+    return _postprocess_cqm_results(cqm, sampleset, return_indices, return_energy)
 
 
-def postprocess_cqm_results(cqm, results, return_indices, return_energy):
-    feasible = results.filter(lambda s: s.is_feasible)
+def _postprocess_cqm_results(cqm, sampleset, return_indices, return_energy):
+    feasible = sampleset.filter(lambda s: s.is_feasible)
     if feasible:
         best = feasible.first
     else:
         assert len(cqm.constraints) == 1
         # Sort on violation, then energy
-        best = sorted(results.data(), key=lambda x: (list(cqm.violations(x.sample).values())[0],
+        best = sorted(sampleset.data(), key=lambda x: (list(cqm.violations(x.sample).values())[0],
                                                      x.energy))[0]
 
     assert list(best.sample.keys()) == sorted(best.sample.keys())
