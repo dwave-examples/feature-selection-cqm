@@ -116,6 +116,7 @@ def beta_to_alpha(beta, k):
 
     Args:
         beta (float): Weighting parameter between 0 and 1.
+        k (int): Number of features in the solution.
 
     Returns:
         alpha (float)
