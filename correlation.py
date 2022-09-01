@@ -104,7 +104,7 @@ def beta_to_alpha(beta, k):
     We define a new parameter, beta, which adjusts for the relative number of
     linear and quadratic terms.  Let the objective function be expressed as:
 
-    $$\beta \Sum linear + (1 - \beta) / (2 (k - 1)) \Sum quad$$
+    $$\beta \sum linear + (1 - \beta) / (2 (k - 1)) \sum quad$$
 
     where $k$ is the number of features in the solution, and the $2*(k-1)$
     factor corrects for the relative number of terms in each sum (the factor of
