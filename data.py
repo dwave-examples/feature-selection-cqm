@@ -19,36 +19,26 @@ class DataSet:
 
     Args:
         name (str)
-            Name of feature selection dataset: one of 'titanic', 'scene', or
-            'madelon' (not fully supported).  The dash app is set up to work
-            with the 'titanic' and 'scene' datasets.  The 'madelon' dataset is
-            also recognized, but it is not fully integrated with the user
-            interface of the dash app.
+            Name of feature selection dataset: either 'titanic' or 'scene'.
 
-            The 'titanic' dataset contains 14 features, the 'scene' dataset
-            contains 299 features, and the 'madelon' dataset contains 500
-            features.
+            The 'titanic' dataset contains 14 features, and the 'scene' dataset
+            contains 299 features.
     """
     def __init__(self, name='titanic'):
         self.name = name
-        if name in ('madelon', 'scene'):
-            data_id = {'madelon': 1485, 'scene': 312}[name]
-            self.baseline_cv_score = {'madelon': 0.69, 'scene': 0.90}[name]
+        if name == 'scene':
+            data_id = 312
+            self.baseline_cv_score = 0.90
 
             dataset = openml.datasets.get_dataset(data_id)
             X, y, categorical_indicator, attribute_names = dataset.get_data(
                 target=dataset.default_target_attribute, dataset_format='dataframe')
             self.y = y.values.astype(int)
-            if name == 'scene':
-                X = X.astype(float)
+            X = X.astype(float)
             self.X = X
 
-            if name == 'scene':
-                self.score_range = (0.79, 0.95)
-                self.default_k = 30
-            else:
-                self.score_range = (0.6, 0.8)
-                self.default_k = 50
+            self.score_range = (0.79, 0.95)
+            self.default_k = 30
             self.default_redundancy_penalty = 0.55
 
         elif name == 'titanic':
