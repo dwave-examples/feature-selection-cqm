@@ -20,6 +20,7 @@ class DataSetBase:
     Subclasses should define the following attributes:
         X (array): Feature data with features as columns.
         y (array): Target data.
+        n (int): Number of features.
         baseline_cv_score (float):
             Baseline cross-validation score with all features.
         score_range (tuple):
@@ -27,9 +28,6 @@ class DataSetBase:
         default_redundancy_penalty (float)
         default_k (int): Default setting for number of features to select.
     """
-    def __init__(self):
-        self.n = np.size(self.X, 1)
-
     def get_relevance(self):
         """Return array of values for relevance of each feature to the target."""
         return np.array([abs(np.corrcoef(x, self.y)[0,1]) for x in self.X.values.T])
@@ -117,7 +115,7 @@ class Titanic(DataSetBase):
         self.default_redundancy_penalty = 0.68
         self.default_k = 8
 
-        super().__init__()
+        self.n = np.size(self.X, 1)
 
 
 class Scene(DataSetBase):
@@ -136,7 +134,7 @@ class Scene(DataSetBase):
         self.default_k = 30
         self.default_redundancy_penalty = 0.55
 
-        super().__init__()
+        self.n = np.size(self.X, 1)
 
 
 def DataSet(name):
