@@ -278,7 +278,7 @@ def update_score_figure(feature_score_data, data_key):
             figure=fig,
         ),
         html.Div(children='Classifier accuracy as measured using a Random '
-                 'Forrest classifier with 3-fold cross-validation'),
+                 'Forest classifier with 3-fold cross-validation'),
 
     ]
 
