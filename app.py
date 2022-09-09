@@ -276,6 +276,7 @@ def update_score_figure(feature_score_data, data_key):
         dcc.Graph(
             id='score-graph',
             figure=fig,
+            config={'displayModeBar': False},
         ),
         html.Div(children='Classifier accuracy as measured using a Random '
                  'Forest classifier with 3-fold cross-validation'),
