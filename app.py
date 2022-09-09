@@ -199,6 +199,10 @@ def update_figure(hover_data, redundancy_check, feature_solution_data, data_key)
     elif data_key == 'scene':
         fig.update_layout(xaxis_title='Color and Texture Features in Image')
 
+    # Disable zooming because hover callback will reset it:
+    fig.layout.xaxis.fixedrange = True
+    fig.layout.yaxis.fixedrange = True
+
     # Adjust spacing between the two figures:
     # fig.update_layout(margin=dict(r=30))
 
@@ -271,6 +275,9 @@ def update_score_figure(feature_score_data, data_key):
     fig.update_layout(font=dict(size=GRAPH_FONT_SIZE))
     # Decrease bottom margin to bring text description closer:
     fig.update_layout(margin=dict(b=30))
+    # Disable zooming:
+    fig.layout.xaxis.fixedrange = True
+    fig.layout.yaxis.fixedrange = True
 
     children=[
         dcc.Graph(
