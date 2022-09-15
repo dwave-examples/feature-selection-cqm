@@ -47,7 +47,7 @@ app.layout = html.Div(children=[
         children=[
             html.H1(children='Feature Selection',
                     className='header-title'),
-            html.P(children="A Constrained Binary Quadratic model for feature selection "
+            html.P(children="A Constrained Quadratic Model for feature selection "
                    "using the D-Wave Leap Hybrid Solver Service",
                    className='header-description'),
         ],
