@@ -243,10 +243,6 @@ def on_solve_clicked(btn, redund_value, num_features, data_key):
     prevent_initial_call=False)
 def update_score_figure(feature_score_data, data_key):
     """Update the plot of feature scores."""
-    # if not feature_score_data:
-    #     # Avoid drawing the score graph when the data dropdown value is changed
-    #     # prior to having run a solution.
-    #     raise PreventUpdate
     score = 0.0
     if feature_score_data:
         feature_score_dataset, score_ = json.loads(feature_score_data)
