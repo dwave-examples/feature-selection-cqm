@@ -14,50 +14,20 @@ from correlation import correlation_feature_selection_cqm, beta_to_alpha
 from solve import solve_feature_selection_cqm
 
 
-class DataSet:
-    """Class containing attributes and methods associated with feature selection dataset.
+class DataSetBase:
+    """Base class for datasets.
 
-    Args:
-        name (str)
-            Name of feature selection dataset: either 'titanic' or 'scene'.
-
-            The 'titanic' dataset contains 14 features, and the 'scene' dataset
-            contains 299 features.
+    Subclasses should define the following attributes:
+        X (array): Feature data with features as columns.
+        y (array): Target data.
+        n (int): Number of features.
+        baseline_cv_score (float):
+            Baseline cross-validation score with all features.
+        score_range (tuple):
+            Lower and upper values for displaying cross-validation scores.
+        default_redundancy_penalty (float)
+        default_k (int): Default setting for number of features to select.
     """
-    def __init__(self, name='titanic'):
-        self.name = name
-        if name == 'scene':
-            data_id = 312
-            self.baseline_cv_score = 0.90
-
-            dataset = openml.datasets.get_dataset(data_id)
-            X, y, categorical_indicator, attribute_names = dataset.get_data(
-                target=dataset.default_target_attribute, dataset_format='dataframe')
-            self.y = y.values.astype(int)
-            X = X.astype(float)
-            self.X = X
-
-            self.score_range = (0.79, 0.95)
-            self.default_k = 30
-            self.default_redundancy_penalty = 0.55
-
-        elif name == 'titanic':
-            df = pd.read_csv('formatted_titanic.csv')
-            target_col = 'survived'
-            self.X = df.drop(target_col, axis=1).astype(int)
-            self.y = df[target_col].values
-            self.baseline_cv_score = 0.69
-
-            self.score_range = (0.6, 0.8)
-
-            self.default_redundancy_penalty = 0.68
-            self.default_k = 8
-
-        else:
-            raise ValueError(name)
-
-        self.n = np.size(self.X, 1)
-
     def get_relevance(self):
         """Return array of values for relevance of each feature to the target."""
         return np.array([abs(np.corrcoef(x, self.y)[0,1]) for x in self.X.values.T])
@@ -130,6 +100,56 @@ class DataSet:
         """
         indices = list(range(np.size(self.X, 1)))
         return np.mean([self.score_indices_cv(indices) for i in range(reps)])
+
+
+class Titanic(DataSetBase):
+    def __init__(self):
+        df = pd.read_csv('formatted_titanic.csv')
+        target_col = 'survived'
+        self.X = df.drop(target_col, axis=1).astype(int)
+        self.y = df[target_col].values
+        self.baseline_cv_score = 0.69
+
+        self.score_range = (0.6, 0.8)
+
+        self.default_redundancy_penalty = 0.68
+        self.default_k = 8
+
+        self.n = np.size(self.X, 1)
+
+
+class Scene(DataSetBase):
+    def __init__(self):
+        data_id = 312
+        self.baseline_cv_score = 0.90
+
+        dataset = openml.datasets.get_dataset(data_id)
+        X, y, categorical_indicator, attribute_names = dataset.get_data(
+            target=dataset.default_target_attribute, dataset_format='dataframe')
+        self.y = y.values.astype(int)
+        X = X.astype(float)
+        self.X = X
+
+        self.score_range = (0.79, 0.95)
+        self.default_k = 30
+        self.default_redundancy_penalty = 0.55
+
+        self.n = np.size(self.X, 1)
+
+
+def DataSet(name):
+    """Return instance of specified DataSet class.
+
+    Args:
+        name (str)
+            Name of feature selection dataset: either 'titanic' or 'scene'.
+
+            The 'titanic' dataset contains 14 features, and the 'scene' dataset
+            contains 299 features.
+    """
+    datasets = {'titanic': Titanic,
+                'scene': Scene}
+    return datasets[name]()
 
 
 if __name__ == '__main__':
