@@ -120,6 +120,12 @@ def create_input_div(data_key):
                 html.Button('Solve', id='solve-button',
                             className='button'),
             ], className='menu'),
+            html.Div(
+                style={'position': 'absolute', 'bottom': '20px'},
+                children=[
+                    html.Img(src="assets/D-Wave logo color.png", width=300),
+                ],
+            ),
         ]),
 
         # Visual indicator that solve is running.  It is actually a placeholder
