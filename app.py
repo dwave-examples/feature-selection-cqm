@@ -121,7 +121,7 @@ def create_input_div(data_key):
                             className='button'),
             ], className='menu'),
             html.Div(
-                style={'position': 'absolute', 'bottom': '0'},
+                style={'position': 'absolute', 'bottom': '20px'},
                 children=[
                     html.Img(src="assets/D-Wave logo color.png", width=300),
                 ],
