@@ -30,3 +30,10 @@ Click on the `Solve` button to run the feature selection with the given settings
 features and redundancy penalty).  Solutions typically take 1-3 seconds.  Once
 complete, the bar chart will update to reflect the selected features, and the
 bar graph for accuracy scores will also be updated.
+
+## References
+
+Milne, Andrew, Maxwell Rounds, and Phil Goddard. 2017. "Optimal Feature
+Selection in Credit Scoring and Classification Using a Quantum Annealer."
+1QBit; White Paper.
+https://1qbit.com/whitepaper/optimal-feature-selection-in-credit-scoring-classification-using-quantum-annealer/
