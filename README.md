@@ -1,6 +1,6 @@
 # Feature Selection Demo
 
-This demo showcases feature selection using the Constrained Quadratic Model
+This demo showcases feature selection using the constrained quadratic model
 (CQM) solver.  The demo can be used with two different data sets:
 
 - `titanic`: This is a well-known data set based on passenger survival from the
