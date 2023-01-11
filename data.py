@@ -8,7 +8,7 @@ import pandas as pd
 import openml
 
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import cross_val_score, train_test_split
+from sklearn.model_selection import cross_val_score
 
 from correlation import correlation_feature_selection_cqm, beta_to_alpha
 from solve import solve_feature_selection_cqm
@@ -87,6 +87,9 @@ class DataSetBase:
             float: Cross-validation accuracy score.
         """
         clf = RandomForestClassifier()
+
+        # NB: the classifier is both trained and evaluated `cv` times in a loop inside
+        # NB: this call to `sklearn.model_selection.cross_val_score`:
         return np.mean(cross_val_score(clf, self.X.iloc[:, indices], self.y, cv=cv))
 
     def score_baseline_cv(self, reps=5):
