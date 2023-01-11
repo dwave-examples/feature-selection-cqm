@@ -8,7 +8,7 @@ import pandas as pd
 import openml
 
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import cross_val_score, train_test_split
+from sklearn.model_selection import cross_val_score
 
 from correlation import correlation_feature_selection_cqm, beta_to_alpha
 from solve import solve_feature_selection_cqm
