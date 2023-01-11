@@ -87,6 +87,9 @@ class DataSetBase:
             float: Cross-validation accuracy score.
         """
         clf = RandomForestClassifier()
+
+        # NB: the classifier is both trained and evaluated `cv` times in a loop inside
+        # NB: this call to `sklearn.model_selection.cross_val_score`:
         return np.mean(cross_val_score(clf, self.X.iloc[:, indices], self.y, cv=cv))
 
     def score_baseline_cv(self, reps=5):
