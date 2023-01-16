@@ -15,6 +15,15 @@ This demo showcases feature selection using the constrained quadratic model
   within regions of the image.  As with the Titanic data, this dataset also
   illustrates the impact of feature redundancy.
 
+---
+**Note:** This example solves a CQM on a Leap&trade; quantum-classical 
+[hybrid solver](https://docs.ocean.dwavesys.com/en/stable/concepts/hybrid.html). 
+The [MIQUBO Method of Feature Selection](https://github.com/dwave-examples/mutual-information-feature-selection) 
+example solves this same problem using a
+[binary quadratic model (BQM)](https://docs.ocean.dwavesys.com/en/stable/concepts/bqm.html)
+directly on a D-Wave quantum computer's quantum processing unit (QPU).
+---
+
 ## Usage
 
 Run `python app.py` and open http://127.0.0.1:8050/ in your browser.  A
