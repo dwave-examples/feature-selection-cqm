@@ -22,6 +22,7 @@ The [MIQUBO Method of Feature Selection](https://github.com/dwave-examples/mutua
 example solves this same problem using a
 [binary quadratic model (BQM)](https://docs.ocean.dwavesys.com/en/stable/concepts/bqm.html)
 directly on a D-Wave quantum computer's quantum processing unit (QPU).
+
 ---
 
 ## Usage
