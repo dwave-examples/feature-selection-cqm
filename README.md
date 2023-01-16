@@ -1,4 +1,4 @@
-# Feature Selection Demo
+# Feature Selection for CQM
 
 This demo showcases feature selection using the constrained quadratic model
 (CQM) solver.  The demo can be used with two different data sets:
