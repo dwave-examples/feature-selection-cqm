@@ -27,7 +27,9 @@ directly on a D-Wave quantum computer's quantum processing unit (QPU).
 
 ## Usage
 
-Run `python app.py` and open http://127.0.0.1:8050/ in your browser.  A
+Run `python app.py`. 
+A URL of the form http://127.0.0.1:***** will be printed in the console. 
+Open in the url in your browser.
 dropdown menu is provided to choose the dataset.
 
 To visualize feature redundancy, first activate the "Show redundancy" check box.
