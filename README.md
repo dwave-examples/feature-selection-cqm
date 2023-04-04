@@ -1,3 +1,7 @@
+[![Open in Leap IDE](
+  https://cdn-assets.cloud.dwavesys.com/shared/latest/badges/leapide.svg)](
+  https://ide.dwavesys.io/#https://github.com/dwave-examples/feature-selection-cqm)
+
 # Feature Selection for CQM
 
 This demo showcases feature selection using the constrained quadratic model
