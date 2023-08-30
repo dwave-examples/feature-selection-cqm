@@ -22,8 +22,12 @@ import openml
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
 
+from dwave.plugins.sklearn import SelectFromQuadraticModel
+
+
 from correlation import correlation_feature_selection_cqm, beta_to_alpha
 from solve import solve_feature_selection_cqm
+
 
 
 class DataSetBase:
@@ -68,6 +72,21 @@ class DataSetBase:
         else:
             return self.calc_redundancy()
 
+    def selected_features(self, X_new):
+        """ Post-processes result from plug-in to return features """
+        print('inside selected_features')
+        _, n = self.X.shape
+        _, m = X_new.shape
+        # need to iterate through and enumerate which features were selected
+        feature_names = []
+        for i in range(n):
+            for j in range(m):
+                if np.all(X_new[:, i] == self.X.iloc[:, j]):
+                    feature_names.append(j)
+                    break
+        print(feature_names, 'selected')
+        return feature_names
+
     def solve_cqm(self, k, beta, **sampler_args):
         """Construct and solve feature selection CQM.
 
@@ -84,9 +103,13 @@ class DataSetBase:
         Returns:
             Array of indices of selected features.
         """
-        alpha = beta_to_alpha(beta, k)
-        cqm = correlation_feature_selection_cqm(self.X, self.y, alpha, k)
-        return solve_feature_selection_cqm(cqm, **sampler_args)
+        print('inside solve_cqm')
+        # alpha = beta_to_alpha(beta, k)
+        alpha = beta
+        # cqm = correlation_feature_selection_cqm(self.X, self.y, alpha, k)
+        X_new = SelectFromQuadraticModel(num_features=k).fit_transform(self.X, self.y)
+        print('feature selection plug-in complete')
+        return self.selected_features(X_new)
 
     def score_indices_cv(self, indices, cv=3):
         """Compute the accuracy score of a random forest classifier trained using the specified features.

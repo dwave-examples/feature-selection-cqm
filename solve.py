@@ -19,6 +19,7 @@ import numpy as np
 from dwave.system import LeapHybridCQMSampler
 
 
+
 def solve_feature_selection_cqm(cqm, sampler=None, return_indices=True, return_energy=False,
                                 **sampler_args):
     """Solve feature selection CQM and retrieve best feature set.
