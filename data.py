@@ -86,7 +86,7 @@ class DataSetBase:
                     break
         return feature_names
 
-    def solve_cqm(self, k, beta):
+    def solve_feature_selection(self, k, beta):
         """Construct and solve feature selection CQM using plugin.
 
         Args:
@@ -161,7 +161,7 @@ class Scene(DataSetBase):
 
         self.score_range = (0.79, 0.95)
         self.default_k = 30
-        self.default_redundancy_penalty = 0.53
+        self.default_redundancy_penalty = 0.4
 
         self.n = np.size(self.X, 1)
 

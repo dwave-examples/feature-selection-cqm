@@ -245,7 +245,7 @@ def on_solve_clicked(btn, redund_value, num_features, data_key):
         raise PreventUpdate
     data = datasets[data_key]
     print('solving...')
-    solution = data.solve_cqm(num_features, 1.0 - redund_value)
+    solution = data.solve_feature_selection(num_features, 1.0 - redund_value)
     # For testing:
     # solution = np.random.choice(np.size(data.X, 1), num_features, replace=False)
     solution = [int(i) for i in solution] # Avoid issues with json and int64
