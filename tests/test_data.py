@@ -19,10 +19,8 @@ import data
 
 
 class TestData(unittest.TestCase):
-    @patch("data.solve_feature_selection_cqm")
-    @patch("data.correlation_feature_selection_cqm")
-    @patch("data.beta_to_alpha")
-    def test_titanic_class(self, mock_beta, mock_corr, mock_solve):
+
+    def test_titanic_class(self):
         titanic = data.Titanic()
         relevance = titanic.get_relevance()
 
@@ -37,13 +35,8 @@ class TestData(unittest.TestCase):
         from_get_redundancy = titanic.get_redundancy()
         self.assertTrue(np.array_equal(redundancy, from_get_redundancy))
 
-        titanic.solve_cqm(k=3, beta=0.5, time_limit=5)
-        mock_beta.assert_called_with(0.5, 3)
-        mock_corr.assert_called_with(
-            titanic.X, titanic.y, mock_beta(), 3
-        )
-        mock_solve.assert_called_with(mock_corr(), time_limit=5)
-    
+        titanic.solve_feature_selection(k=3, beta=0.5)
+
         score_by_feature_indices = titanic.score_indices_cv(
             list(range(np.size(titanic.X, 1)))
         )
@@ -54,10 +47,8 @@ class TestData(unittest.TestCase):
         self.assertLessEqual(baseline_score, 1.0)
         self.assertGreaterEqual(baseline_score, 0)
     
-    @patch("data.solve_feature_selection_cqm")
-    @patch("data.correlation_feature_selection_cqm")
-    @patch("data.beta_to_alpha")
-    def test_scene_class(self, mock_beta, mock_corr, mock_solve):
+
+    def test_scene_class(self):
         scene = data.Scene()
         relevance = scene.get_relevance()
 
@@ -72,13 +63,8 @@ class TestData(unittest.TestCase):
         from_get_redundancy = scene.get_redundancy()
         self.assertTrue(np.array_equal(redundancy, from_get_redundancy))
 
-        scene.solve_cqm(k=3, beta=0.5, time_limit=5)
-        mock_beta.assert_called_with(0.5, 3)
-        mock_corr.assert_called_with(
-            scene.X, scene.y, mock_beta(), 3
-        )
-        mock_solve.assert_called_with(mock_corr(), time_limit=5)
-    
+        scene.solve_feature_selection(k=3, beta=0.5)
+
         score_by_feature_indices = scene.score_indices_cv(
             list(range(np.size(scene.X, 1)))
         )
