@@ -35,7 +35,7 @@ class TestData(unittest.TestCase):
         from_get_redundancy = titanic.get_redundancy()
         self.assertTrue(np.array_equal(redundancy, from_get_redundancy))
 
-        titanic.solve_feature_selection(k=3, beta=0.5)
+        titanic.solve_feature_selection(k=3, alpha=0.5)
 
         score_by_feature_indices = titanic.score_indices_cv(
             list(range(np.size(titanic.X, 1)))
@@ -63,7 +63,7 @@ class TestData(unittest.TestCase):
         from_get_redundancy = scene.get_redundancy()
         self.assertTrue(np.array_equal(redundancy, from_get_redundancy))
 
-        scene.solve_feature_selection(k=3, beta=0.5)
+        scene.solve_feature_selection(k=3, alpha=0.5)
 
         score_by_feature_indices = scene.score_indices_cv(
             list(range(np.size(scene.X, 1)))

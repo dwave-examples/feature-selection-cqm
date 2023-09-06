@@ -83,7 +83,7 @@ class DataSetBase:
         feature_names = []
         for i in range(n):
             for j in range(m):
-                if np.all(X_new[:, j] == self.X[:, i]):
+                if np.all(X_new[:, j] == self.X.iloc[:, i]):
                     feature_names.append(i)
                     break
         return feature_names
