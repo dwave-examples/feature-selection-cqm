@@ -67,40 +67,42 @@ class DataSetBase:
         else:
             return self.calc_redundancy()
 
-    def selected_features(self, X_new):
+    def get_selected_features(self, X_new):
         """ Post-processes result from plug-in to return features
+
          Args:
-            X_new (df):
+            X_new (np.ndarray):
                 Reduced dataset with selected features
 
         Returns:
-            Array of indices of selected features."""
+            Array of indices of selected features.
+        """
         _, n = self.X.shape
         _, m = X_new.shape
         # need to iterate through and enumerate which features were selected
         feature_names = []
         for i in range(n):
             for j in range(m):
-                if np.all(X_new[:, j] == self.X.iloc[:, i]):
+                if np.all(X_new[:, j] == self.X[:, i]):
                     feature_names.append(i)
                     break
         return feature_names
 
-    def solve_feature_selection(self, k, beta):
+    def solve_feature_selection(self, k, alpha):
         """Construct and solve feature selection CQM using plugin.
 
         Args:
             k (int):
                 Number of features to select.
-            beta (float):
+            alpha (float):
                 Parameter between 0 and 1 that defines the relative weight of
                 linear and quadratic coefficients.
 
         Returns:
             Array of indices of selected features.
         """
-        X_new = SelectFromQuadraticModel(num_features=k, alpha=beta).fit_transform(self.X, self.y)
-        return self.selected_features(X_new)
+        X_new = SelectFromQuadraticModel(num_features=k, alpha=alpha).fit_transform(self.X.values, self.y)
+        return self.get_selected_features(X_new)
 
     def score_indices_cv(self, indices, cv=3):
         """Compute the accuracy score of a random forest classifier trained using the specified features.

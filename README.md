@@ -5,7 +5,9 @@
 # Feature Selection for CQM
 
 This demo showcases feature selection using the constrained quadratic model
-(CQM) solver via D-Wave's scikit-learn plug-in.  The demo can be used with two different data sets:
+(CQM) solver via 
+[D-Wave's scikit-learn plug-in](https://github.com/dwavesystems/dwave-scikit-learn-plugin).
+The demo can be used with two different data sets:
 
 - `titanic`: This is a well-known data set based on passenger survival from the
   Titanic.  It includes 14 features and illustrates how feature redundancy
