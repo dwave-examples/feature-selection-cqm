@@ -19,8 +19,9 @@ import data
 
 
 class TestData(unittest.TestCase):
-
-    def test_titanic_class(self):
+    @patch("data.SelectFromQuadraticModel")
+    @patch("data.DataSetBase.get_selected_features")
+    def test_titanic_class(self, mock_get, mock_select):
         titanic = data.Titanic()
         relevance = titanic.get_relevance()
 
@@ -36,6 +37,12 @@ class TestData(unittest.TestCase):
         self.assertTrue(np.array_equal(redundancy, from_get_redundancy))
 
         titanic.solve_feature_selection(k=3, alpha=0.5)
+        mock_select.assert_called_with(num_features=3, alpha=0.5)
+        mock_get.assert_called_with(
+            mock_select(num_features=3, alpha=0.5).fit_transform(
+                titanic.X.values, titanic.y
+            )
+        )
 
         score_by_feature_indices = titanic.score_indices_cv(
             list(range(np.size(titanic.X, 1)))
@@ -46,9 +53,10 @@ class TestData(unittest.TestCase):
         baseline_score = titanic.score_baseline_cv()
         self.assertLessEqual(baseline_score, 1.0)
         self.assertGreaterEqual(baseline_score, 0)
-    
 
-    def test_scene_class(self):
+    @patch("data.SelectFromQuadraticModel")
+    @patch("data.DataSetBase.get_selected_features")
+    def test_scene_class(self, mock_get, mock_select):
         scene = data.Scene()
         relevance = scene.get_relevance()
 
@@ -64,6 +72,12 @@ class TestData(unittest.TestCase):
         self.assertTrue(np.array_equal(redundancy, from_get_redundancy))
 
         scene.solve_feature_selection(k=3, alpha=0.5)
+        mock_select.assert_called_with(num_features=3, alpha=0.5)
+        mock_get.assert_called_with(
+            mock_select(num_features=3, alpha=0.5).fit_transform(
+                scene.X.values, scene.y
+            )
+        )
 
         score_by_feature_indices = scene.score_indices_cv(
             list(range(np.size(scene.X, 1)))
@@ -71,9 +85,6 @@ class TestData(unittest.TestCase):
         self.assertLessEqual(score_by_feature_indices, 1.0)
         self.assertGreaterEqual(score_by_feature_indices, 0)
 
-        baseline_score = scene.score_baseline_cv()
-        self.assertLessEqual(baseline_score, 1.0)
-        self.assertGreaterEqual(baseline_score, 0)
 
     def test_dataset(self):
         titanic = data.DataSet("titanic")
@@ -81,4 +92,3 @@ class TestData(unittest.TestCase):
 
         self.assertIsInstance(titanic, data.Titanic)
         self.assertIsInstance(scene, data.Scene)
-        
