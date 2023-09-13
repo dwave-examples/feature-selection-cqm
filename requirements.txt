@@ -3,3 +3,4 @@ scikit-learn>=1.1.1
 openml==0.12.2
 pandas>=1.4.2
 dash==2.7.0
+dwave-scikit-learn-plugin==0.1.0

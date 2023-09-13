@@ -22,8 +22,7 @@ import openml
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
 
-from correlation import correlation_feature_selection_cqm, beta_to_alpha
-from solve import solve_feature_selection_cqm
+from dwave.plugins.sklearn import SelectFromQuadraticModel
 
 
 class DataSetBase:
@@ -68,25 +67,42 @@ class DataSetBase:
         else:
             return self.calc_redundancy()
 
-    def solve_cqm(self, k, beta, **sampler_args):
-        """Construct and solve feature selection CQM.
+    def get_selected_features(self, X_new):
+        """ Post-processes result from plug-in to return features
 
-        Args:
-            k (int):
-                Number of features to select.
-            beta (float):
-                Parameter between 0 and 1 that defines the relative weight of
-                linear and quadratic coefficients.  See the documentation for
-                `beta_to_alpha`.
-            sampler_args (dict):
-                Passed to LeapHybridCQMSampler.
+         Args:
+            X_new (np.ndarray):
+                Reduced dataset with selected features
 
         Returns:
             Array of indices of selected features.
         """
-        alpha = beta_to_alpha(beta, k)
-        cqm = correlation_feature_selection_cqm(self.X, self.y, alpha, k)
-        return solve_feature_selection_cqm(cqm, **sampler_args)
+        _, n = self.X.shape
+        _, m = X_new.shape
+        # need to iterate through and enumerate which features were selected
+        feature_names = []
+        for i in range(n):
+            for j in range(m):
+                if np.all(X_new[:, j] == self.X.iloc[:, i]):
+                    feature_names.append(i)
+                    break
+        return feature_names
+
+    def solve_feature_selection(self, k, alpha):
+        """Construct and solve feature selection CQM using plugin.
+
+        Args:
+            k (int):
+                Number of features to select.
+            alpha (float):
+                Parameter between 0 and 1 that defines the relative weight of
+                linear and quadratic coefficients.
+
+        Returns:
+            Array of indices of selected features.
+        """
+        X_new = SelectFromQuadraticModel(num_features=k, alpha=alpha).fit_transform(self.X.values, self.y)
+        return self.get_selected_features(X_new)
 
     def score_indices_cv(self, indices, cv=3):
         """Compute the accuracy score of a random forest classifier trained using the specified features.
@@ -121,7 +137,7 @@ class Titanic(DataSetBase):
     def __init__(self):
         df = pd.read_csv('formatted_titanic.csv')
         target_col = 'survived'
-        self.X = df.drop(target_col, axis=1).astype(int)
+        self.X = df.drop(target_col, axis=1).astype(float)
         self.y = df[target_col].values
         self.baseline_cv_score = 0.69
 
@@ -147,7 +163,7 @@ class Scene(DataSetBase):
 
         self.score_range = (0.79, 0.95)
         self.default_k = 30
-        self.default_redundancy_penalty = 0.55
+        self.default_redundancy_penalty = 0.4
 
         self.n = np.size(self.X, 1)
 
