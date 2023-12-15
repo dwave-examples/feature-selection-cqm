@@ -31,6 +31,21 @@ directly on a D-Wave quantum computer's quantum processing unit (QPU).
 
 ---
 
+## Installation
+
+You can run this example without installation in cloud-based IDEs that support 
+the [Development Containers specification](https://containers.dev/supporting)
+(aka "devcontainers").
+
+For development environments that do not support ``devcontainers``, install 
+requirements:
+
+    pip install -r requirements.txt
+
+If you are cloning the repo to your local system, working in a 
+[virtual environment](https://docs.python.org/3/library/venv.html) is 
+recommended.
+
 ## Usage
 
 Run `python app.py` and open http://127.0.0.1:8050/ in your browser.  A
@@ -46,6 +61,60 @@ Click on the `Solve` button to run the feature selection with the given settings
 features and redundancy penalty).  Solutions typically take 1-3 seconds.  Once
 complete, the bar chart will update to reflect the selected features, and the
 bar graph for accuracy scores will also be updated.
+
+## Problem Description
+
+The objective for this feature selection application aims to choose features that
+optimize relationships between individual features in the dataset as well as between
+the features and the target variable. The goal is to choose features that will help 
+the machine learning model learn by promoting diversity between features and strong
+relationships to the target variable. Correlation between features generates the 
+redundancy metric, which is minimized between each pair of features to promote 
+diversity. Correlation between features and the target is maximized to promote a 
+strong relationship. 
+
+The constraints here focus on choosing the exact number of defined features.
+
+## Model Overview
+
+
+---
+**Note:** Although a model overview is provided here, all of the code to build
+the feature selection model is contained within 
+[D-Wave's scikit-learn plug-in](https://github.com/dwavesystems/dwave-scikit-learn-plugin).
+---
+
+### Parameters
+
+### Variables
+
+### Expressions
+
+### Objective
+
+### Constraints
+
+## Code Overview
+
+A general overview of how the code works.
+
+We prefer descriptions in bite-sized bullet points:
+
+* Here's an example bullet point
+
+## Code Specifics
+
+Notable parts of the code implementation.
+
+This is the place to:
+
+* Highlight a part of the code implementation
+* Talk about unusual or potentially difficult parts of the code
+* Explain a code decision
+* Explain how parameters were tuned
+
+Note: there is no need to repeat everything that is already well-documented in
+the code.
 
 ## References
 
