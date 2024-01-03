@@ -77,6 +77,11 @@ The constraints here focus on choosing the exact number of defined features.
 
 ## Model Overview
 
+In this example we use the Titanic and Scene datasets to generate a Constrained Quadratic Model. 
+The datasets are assumed to be clean, meaning there are no missing entries or repeated features. 
+The features of the dataset are used to build a correlation matrix which compares the features to 
+each other as well as a correlation matrix that compares the features to the target variable. Those 
+correlation matrices are used to build the objective function. 
 
 ---
 **Note:** Although a model overview is provided here, all of the code to build
@@ -86,35 +91,33 @@ the feature selection model is contained within
 
 ### Parameters
 
+These are the parameters of the problem:
+
+- `num_features`: the number of selected features
+- `redund_val`: used to determine factor applied to redundancy terms
+
 ### Variables
+- `x_i`: binary variable that shows if feature `i` is selected
 
 ### Expressions
+ Expressions are linear or quadratic combinations of variables used for easier representations of the models. 
+- None
 
 ### Objective
-
+The objective function has two terms. The first term corresponds to minimizing the correlation between 
+chosen features in the dataset controlled by the redundancy parameter. The second term corresponds to 
+maximizing the correlation between the features and the target variable. 
 ### Constraints
-
+A single constraint is used to enforce the number of features selected by the model matches the `num_features`
+parameter.
 ## Code Overview
 
-A general overview of how the code works.
+Given a selected value for the `num_features` and `redund_val` sliders, the code proceeds as follows:
 
-We prefer descriptions in bite-sized bullet points:
-
-* Here's an example bullet point
-
-## Code Specifics
-
-Notable parts of the code implementation.
-
-This is the place to:
-
-* Highlight a part of the code implementation
-* Talk about unusual or potentially difficult parts of the code
-* Explain a code decision
-* Explain how parameters were tuned
-
-Note: there is no need to repeat everything that is already well-documented in
-the code.
+* The selected dataset and parameters are passed to D-Wave's feature selection scikit-learn plugin
+* The resulting selected features are returned from the plugin
+* A random forest classifier model is trained on the selected features and accuracy score is calculated
+* The display image is updated to reflect the selected features and the classifier accuracy 
 
 ## References
 
