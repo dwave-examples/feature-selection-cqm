@@ -96,6 +96,8 @@ These are the parameters of the problem:
 
 - `num_features`: the number of features to select 
 - `redund_val`: used to determine factor applied to redundancy terms
+  - 0: features will be selected as to minimize the redundancy without any consideration to quality
+  - 1: places the maximum weight on the quality of the features
 
 ### Variables
 - `x_i`: binary variable that shows if feature `i` is selected
