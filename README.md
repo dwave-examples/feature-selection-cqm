@@ -64,20 +64,20 @@ bar graph for accuracy scores will also be updated.
 
 ## Problem Description
 
-The objective for this feature selection application aims to choose features that
-optimize relationships between individual features in the dataset as well as between
-the features and the target variable. The goal is to choose features that will help 
-the machine learning model learn by promoting diversity between features and strong
-relationships to the target variable. Correlation between features generates the 
-redundancy metric, which is minimized between each pair of features to promote 
-diversity. Correlation between features and the target is maximized to promote a 
-strong relationship. 
+The goal for this feature selection application is to choose features that will help 
+the machine-learning model learn by promoting diversity between features and strong
+relationships to the target variable. The model sets the following objectives and constraints 
+to achieve this goal:
 
-The constraints here focus on choosing the exact number of defined features.
+**Objectives:**  minimize the redundancy metric (correlation between features) between each 
+pair of features to promote diversity and maximize correlation between features and the target
+to promote a strong relationship. 
+
+**Constraints:** choose the requested number of features.
 
 ## Model Overview
 
-In this example we use the Titanic and Scene datasets to generate a Constrained Quadratic Model. 
+In this example we use the Titanic and Scene datasets to generate a constrained quadratic model. 
 The datasets are assumed to be clean, meaning there are no missing entries or repeated features. 
 The features of the dataset are used to build a correlation matrix which compares the features to 
 each other as well as a correlation matrix that compares the features to the target variable. Those 
@@ -87,28 +87,26 @@ correlation matrices are used to build the objective function.
 **Note:** Although a model overview is provided here, all of the code to build
 the feature selection model is contained within 
 [D-Wave's scikit-learn plug-in](https://github.com/dwavesystems/dwave-scikit-learn-plugin).
+
 ---
 
 ### Parameters
 
 These are the parameters of the problem:
 
-- `num_features`: the number of selected features
+- `num_features`: the number of features to select 
 - `redund_val`: used to determine factor applied to redundancy terms
 
 ### Variables
 - `x_i`: binary variable that shows if feature `i` is selected
 
-### Expressions
- Expressions are linear or quadratic combinations of variables used for easier representations of the models. 
-- None
 
 ### Objective
-The objective function has two terms. The first term corresponds to minimizing the correlation between 
-chosen features in the dataset controlled by the redundancy parameter. The second term corresponds to 
-maximizing the correlation between the features and the target variable. 
+The objective function has two terms. The first term minimizes the correlation between 
+chosen features in the dataset (this term is weighted by the redundancy parameter, `redund_val`). The 
+second term maximizes the correlation between the features and the target variable. 
 ### Constraints
-A single constraint is used to enforce the number of features selected by the model matches the `num_features`
+A single constraint is used to require that the model select a number of features equal to the `num_features`
 parameter.
 ## Code Overview
 
