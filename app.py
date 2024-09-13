@@ -16,6 +16,7 @@
 # visit http://127.0.0.1:8050/ in your web browser.
 
 import json
+import socket
 
 from dash import Dash, html, dcc, Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -307,6 +308,13 @@ def update_score_figure(feature_score_data, data_key):
     return children
 
 
+def find_free_port():
+    with socket.socket() as s:
+        s.bind(('', 0))            # Bind to a free port provided by the host.
+        return s.getsockname()[1]  # Return the port number assigned.
+
+
 if __name__ == '__main__':
     # Set dev_tools_ui=False or debug=False to disable the dev tools UI
-    app.run_server(debug=True, dev_tools_ui=False)
+    port = find_free_port()
+    app.run_server(debug=True, dev_tools_ui=False, port=port)
