@@ -31,10 +31,40 @@ directly on a D-Wave quantum computer's quantum processing unit (QPU).
 
 ---
 
+## Installation
+
+You can run this example without installation in cloud-based IDEs that support
+the
+[Development Containers specification](https://containers.dev/supporting) (aka
+"devcontainers") such as GitHub Codespaces.
+
+For development environments that do not support `devcontainers`, install
+requirements:
+
+```bash
+pip install -r requirements.txt
+```
+
+If you are cloning the repo to your local system, working in a
+[virtual environment](https://docs.python.org/3/library/venv.html) is
+recommended.
+
 ## Usage
 
-Run `python app.py` and open http://127.0.0.1:8050/ in your browser.  A
-dropdown menu is provided to choose the dataset.
+Your development environment should be configured to access the
+[Leap&trade; quantum cloud service](https://docs.dwavequantum.com/en/latest/ocean/sapi_access_basic.html).
+You can see information about supported IDEs and authorizing access to your Leap
+account
+[here](https://docs.dwavequantum.com/en/latest/leap_sapi/dev_env.html).
+
+Run the following terminal command to start the Dash application:
+
+```bash
+python app.py
+```
+
+Access the user interface with your browser at http://127.0.0.1:8050/.
+A dropdown menu is provided to choose the dataset.
 
 To visualize feature redundancy, first activate the "Show redundancy" check box.
 Then hover the mouse over any of the bars.  The colors of all bars will be
