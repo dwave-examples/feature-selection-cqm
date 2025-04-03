@@ -23,10 +23,10 @@ The demo can be used with two different data sets:
 
 ---
 **Note:** This example solves a CQM on a Leap&trade; quantum-classical 
-[hybrid solver](https://docs.ocean.dwavesys.com/en/stable/concepts/hybrid.html). 
+[hybrid solver](https://docs.dwavequantum.com/en/latest/concepts/hybrid.html). 
 The [MIQUBO Method of Feature Selection](https://github.com/dwave-examples/mutual-information-feature-selection) 
 example solves this same problem using a
-[binary quadratic model (BQM)](https://docs.ocean.dwavesys.com/en/stable/concepts/bqm.html)
+[binary quadratic model (BQM)](https://docs.dwavequantum.com/en/latest/concepts/models.html#binary-quadratic-models)
 directly on a D-Wave quantum computer's quantum processing unit (QPU).
 
 ---
