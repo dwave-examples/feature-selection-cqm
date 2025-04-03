@@ -5,7 +5,7 @@
 # Feature Selection for CQM
 
 This demo showcases feature selection using the constrained quadratic model
-(CQM) solver via 
+(CQM) solver via
 [D-Wave's scikit-learn plug-in](https://github.com/dwavesystems/dwave-scikit-learn-plugin).
 The demo can be used with two different data sets:
 
@@ -22,9 +22,9 @@ The demo can be used with two different data sets:
   illustrates the impact of feature redundancy.
 
 ---
-**Note:** This example solves a CQM on a Leap&trade; quantum-classical 
-[hybrid solver](https://docs.dwavequantum.com/en/latest/concepts/hybrid.html). 
-The [MIQUBO Method of Feature Selection](https://github.com/dwave-examples/mutual-information-feature-selection) 
+**Note:** This example solves a CQM on a Leap&trade; quantum-classical
+[hybrid solver](https://docs.dwavequantum.com/en/latest/concepts/hybrid.html).
+The [MIQUBO Method of Feature Selection](https://github.com/dwave-examples/mutual-information-feature-selection)
 example solves this same problem using a
 [binary quadratic model (BQM)](https://docs.dwavequantum.com/en/latest/concepts/models.html#binary-quadratic-models)
 directly on a D-Wave quantum computer's quantum processing unit (QPU).
