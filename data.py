@@ -22,6 +22,10 @@ import openml
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
 
+# TODO: temporary fix for circular import issue;
+# remove when dwave-ocean-sdk>8 is released
+import dwave.cloud.client
+
 from dwave.plugins.sklearn import SelectFromQuadraticModel
 
 
