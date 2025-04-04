@@ -7,12 +7,12 @@
 This demo showcases feature selection using the constrained quadratic model
 (CQM) solver via
 [D-Wave's scikit-learn plug-in](https://github.com/dwavesystems/dwave-scikit-learn-plugin).
-The demo can be used with two different data sets:
+The demo can be used with two different datasets:
 
-- `titanic`: This is a well-known data set based on passenger survival from the
+- `titanic`: This is a well-known dataset based on passenger survival from the
   Titanic.  It includes 14 features and illustrates how feature redundancy
   impacts the solution.
-- `scene`: This is a larger data set with 299 features.  It is associated with
+- `scene`: This is a larger dataset with 299 features.  It is associated with
   recognizing scenes based on feature data contained in images.  For additional
   information, see:
   [OpenML](https://www.openml.org/search?type=data&sort=runs&id=312&status=active).
@@ -72,7 +72,7 @@ dynamically updated to show the similarity (redundancy) against the feature that
 is currently under the mouse.
 
 Click on the `Solve` button to run the feature selection with the given settings
-(each data set is initialized with reasonable default settings for the number of
+(each dataset is initialized with reasonable default settings for the number of
 features and redundancy penalty).  Solutions typically take 1-3 seconds.  Once
 complete, the bar chart will update to reflect the selected features, and the
 bar graph for accuracy scores will also be updated.
