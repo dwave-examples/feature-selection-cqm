@@ -2,10 +2,10 @@
   https://img.shields.io/badge/Open%20in%20GitHub%20Codespaces-333?logo=github)](
   https://codespaces.new/dwave-examples/feature-selection-cqm?quickstart=1)
 
-# Feature Selection for CQM
+# Feature Selection for NL
 
-This demo showcases feature selection using the constrained quadratic model
-(CQM) solver via
+This demo showcases feature selection using the NonLinear model
+(NL) solver via
 [D-Wave's scikit-learn plug-in](https://github.com/dwavesystems/dwave-scikit-learn-plugin).
 The demo can be used with two different datasets:
 
@@ -22,7 +22,7 @@ The demo can be used with two different datasets:
   illustrates the impact of feature redundancy.
 
 ---
-**Note:** This example solves a CQM on a Leap&trade; quantum-classical
+**Note:** This example solves a NL on a Leap&trade; quantum-classical
 [hybrid solver](https://docs.dwavequantum.com/en/latest/concepts/hybrid.html).
 The [MIQUBO Method of Feature Selection](https://github.com/dwave-examples/mutual-information-feature-selection)
 example solves this same problem using a
@@ -88,11 +88,12 @@ to achieve this goal:
 pair of features to promote diversity and maximize correlation between features and the target
 to promote a strong relationship. 
 
-**Constraints:** choose the requested number of features.
+**Constraints:**
+- Choose the requested number of features.
 
 ## Model Overview
 
-In this example we use the Titanic and Scene datasets to generate a constrained quadratic model. 
+In this example we use the Titanic and Scene datasets to generate a Nonlinear model. 
 The datasets are assumed to be clean, meaning there are no missing entries or repeated features. 
 The features of the dataset are used to build a correlation matrix which compares the features to 
 each other as well as a correlation matrix that compares the features to the target variable. Those 
@@ -107,16 +108,15 @@ the feature selection model is contained within
 
 ### Parameters
 
-These are the parameters of the problem:
+These are the constants of the problem based on the nonlinear solver:
 
 - `num_features`: the number of features to select 
-- `redund_val`: used to determine factor applied to redundancy terms
+- `redund_value`: used to determine factor applied to redundancy terms
   - 0: features will be selected as to minimize the redundancy without any consideration to quality
   - 1: places the maximum weight on the quality of the features
 
 ### Variables
-- `x_i`: binary variable that shows if feature `i` is selected
-
+- `X_Binary`: binary variable that shows a list of which features are selected(1) and not selected(0)
 
 ### Objective
 The objective function has two terms. The first term minimizes the correlation between 
@@ -127,7 +127,7 @@ A single constraint is used to require that the model select a number of feature
 parameter.
 ## Code Overview
 
-Given a selected value for the `num_features` and `redund_val` sliders, the code proceeds as follows:
+Given a selected value for the `num_features` and `redund_value` sliders, the code proceeds as follows:
 
 * The selected dataset and parameters are passed to D-Wave's feature selection scikit-learn plugin
 * The resulting selected features are returned from the plugin
