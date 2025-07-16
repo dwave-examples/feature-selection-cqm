@@ -19,7 +19,7 @@ import data
 
 
 class TestData(unittest.TestCase):
-    @patch("data.SelectFromQuadraticModel")
+    @patch("data.SelectFromNonlinearModel")
     @patch("data.DataSetBase.get_selected_features")
     def test_titanic_class(self, mock_get, mock_select):
         titanic = data.Titanic()
@@ -54,7 +54,7 @@ class TestData(unittest.TestCase):
         self.assertLessEqual(baseline_score, 1.0)
         self.assertGreaterEqual(baseline_score, 0)
 
-    @patch("data.SelectFromQuadraticModel")
+    @patch("data.SelectFromNonlinearModel")
     @patch("data.DataSetBase.get_selected_features")
     def test_scene_class(self, mock_get, mock_select):
         scene = data.Scene()

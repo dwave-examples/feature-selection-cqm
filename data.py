@@ -22,11 +22,7 @@ import openml
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
 
-# TODO: temporary fix for circular import issue;
-# remove when dwave-ocean-sdk>8 is released
-import dwave.cloud.client
-
-from dwave.plugins.sklearn import SelectFromQuadraticModel
+from dwave.plugins.sklearn import SelectFromNonlinearModel
 
 
 class DataSetBase:
@@ -93,7 +89,7 @@ class DataSetBase:
         return feature_names
 
     def solve_feature_selection(self, k, alpha):
-        """Construct and solve feature selection CQM using plugin.
+        """Construct and solve feature selection NL using plugin.
 
         Args:
             k (int):
@@ -105,7 +101,7 @@ class DataSetBase:
         Returns:
             Array of indices of selected features.
         """
-        X_new = SelectFromQuadraticModel(num_features=k, alpha=alpha).fit_transform(self.X.values, self.y)
+        X_new = SelectFromNonlinearModel(num_features=k, alpha=alpha).fit_transform(self.X.values, self.y)
         return self.get_selected_features(X_new)
 
     def score_indices_cv(self, indices, cv=3):
