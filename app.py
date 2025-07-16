@@ -59,7 +59,7 @@ app.layout = html.Div(children=[
         children=[
             html.H1(children='Feature Selection',
                     className='header-title'),
-            html.P(children="A Nonliner model for feature selection " 
+            html.P(children="A nonliner model for feature selection " 
                    "using the Leap hybrid solver service",
                    className='header-description'),
         ],
