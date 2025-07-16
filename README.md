@@ -4,7 +4,7 @@
 
 # Feature Selection for NL
 
-This demo showcases feature selection using the NonLinear model
+This demo showcases feature selection using the Nonlinear model
 (NL) solver via
 [D-Wave's scikit-learn plug-in](https://github.com/dwavesystems/dwave-scikit-learn-plugin).
 The demo can be used with two different datasets:
@@ -88,8 +88,7 @@ to achieve this goal:
 pair of features to promote diversity and maximize correlation between features and the target
 to promote a strong relationship. 
 
-**Constraints:**
-- Choose the requested number of features.
+**Constraints:** choose the requested number of features.
 
 ## Model Overview
 
@@ -108,7 +107,7 @@ the feature selection model is contained within
 
 ### Parameters
 
-These are the constants of the problem based on the nonlinear solver:
+These are the parameters of the problem:
 
 - `num_features`: the number of features to select 
 - `redund_value`: used to determine factor applied to redundancy terms
@@ -116,7 +115,7 @@ These are the constants of the problem based on the nonlinear solver:
   - 1: places the maximum weight on the quality of the features
 
 ### Variables
-- `X_Binary`: binary variable that shows a list of which features are selected(1) and not selected(0)
+- `x_binary`: binary variable that shows a list of which features are selected(1) and not selected(0)
 
 ### Objective
 The objective function has two terms. The first term minimizes the correlation between 
