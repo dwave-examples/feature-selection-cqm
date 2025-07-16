@@ -22,11 +22,7 @@ import openml
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
 
-# removed the cloud client, since we are using dwave-ocean-sdk>8 is released
-
-from transformers import SelectFromNonlinearModel # Removed Quadratic Model, and added Non linear model
-
-
+from dwave.plugins.sklearn import SelectFromNonlinearModel
 
 
 class DataSetBase:
