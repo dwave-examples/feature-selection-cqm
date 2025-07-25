@@ -22,13 +22,15 @@ from dash.exceptions import PreventUpdate
 import plotly.express as px
 import pandas as pd
 import numpy as np
+import time
+
 
 from data import DataSet
 
 
 DATASET_NAMES = [
     {'label': 'Titanic Survival', 'value': 'titanic'},
-    {'label': 'Scene', 'value': 'scene'},
+    {'label': 'Scene', 'value': 'scene'}
 ]
 
 GRAPH_FONT_SIZE = 14
@@ -243,14 +245,31 @@ def on_solve_clicked(btn, redund_value, num_features, data_key):
     """Run feature selection when the solve button is clicked."""
     if not btn:
         raise PreventUpdate
+    
+    while(True):
+        print("Select Solver [CQM/NL]:", end=" ")
+        selected_solver = str(input())
+        solver = selected_solver.lower()
+        if (solver=="cqm" or solver=="nl"):
+            print(f"{solver} solver detected")
+            break
+        else:
+            print("Input does not match requirements. ")
+    
+    start_time = time.perf_counter()
     data = datasets[data_key]
     print('solving...')
-    solution = data.solve_feature_selection(num_features, 1.0 - redund_value)
+    solution = data.solve_feature_selection(num_features, 1.0 - redund_value, solver)
     # For testing:
     # solution = np.random.choice(np.size(data.X, 1), num_features, replace=False)
+    #print("Post solve_feature_selection call")
     solution = [int(i) for i in solution] # Avoid issues with json and int64
     print('solution:', solution)
     score = data.score_indices_cv(solution)
+    end_time = time.perf_counter()
+    elapsed = end_time - start_time
+    print(f"Executed in {elapsed} seconds")
+    #print("passed back solution but not printed")
     return json.dumps((data_key, solution)), json.dumps((data_key,score)), ''
 
 
