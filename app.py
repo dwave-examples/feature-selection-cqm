@@ -33,6 +33,11 @@ DATASET_NAMES = [
     {'label': 'Scene', 'value': 'scene'}
 ]
 
+SOLVER_NAMES = [
+    {'label': 'CQM Hybrid', 'value': 'cqm'},
+    {'label': 'NL Hybrid', 'value': 'nl'}
+]
+
 GRAPH_FONT_SIZE = 14
 DWAVE_PRIMARY_COLORS = ['#2a7de1', '#f37820']
 
@@ -61,7 +66,7 @@ app.layout = html.Div(children=[
         children=[
             html.H1(children='Feature Selection',
                     className='header-title'),
-            html.P(children="A constrained quadratic model for feature selection "
+            html.P(children="A hybrid model for feature selection "
                    "using the Leap hybrid solver service",
                    className='header-description'),
         ],
@@ -82,6 +87,17 @@ app.layout = html.Div(children=[
                     clearable=False,
                     id='data-dropdown'),
 
+                html.Br(),
+                
+                html.Div(children='Solver',
+                         className='menu-title'),
+                dcc.Dropdown(
+                    options=SOLVER_NAMES,
+                    value='cqm',
+                    searchable=False,
+                    clearable=False,
+                    id='solver-dropdown'),
+
                 html.Div(id='solve-input-div'),
             ], style={'marginLeft': '20px', 'marginRight': '100px'}),
 
@@ -92,12 +108,12 @@ app.layout = html.Div(children=[
                 ),
                 html.Div(children=[
                     dcc.Graph(id='feature-graph', style={'flex': 1}, responsive=True),
-                    html.Div(id='score-div', style={'flex-basis': '230px'}),
+                    dcc.Graph(id='accuracy-graph', style={'flex-basis': '230px'}, responsive=True, config={'displayModeBar': False}),
                 ], style={'display': 'flex'}),
             ], style={'flex': 1}),
             dcc.Store(id='feature-solution'),
 
-            dcc.Store(id='feature-score'),
+            dcc.Store(id='feature-score', data=0.0),
 
         ],
         style={'display': 'flex'})
@@ -189,7 +205,7 @@ def update_figure(hover_data, redundancy_check, feature_solution_data, data_key)
             hover_cols['Redundancy'] = False
 
     opacity = 1.0
-    mlw = 0
+    mlw = 1
     feature_solution = None
     if feature_solution_data:
         solution_dataset, solution = json.loads(feature_solution_data)
@@ -233,53 +249,13 @@ def update_figure(hover_data, redundancy_check, feature_solution_data, data_key)
 
 
 @app.callback(
-    Output('feature-solution', 'data'),
-    Output('feature-score', 'data'),
-    Output('loading-solve-output', 'children'),
-    Input('solve-button', 'n_clicks'),
-    State('redundancy-slider', 'value'),
-    State('num-features-slider', 'value'),
-    State('data-dropdown', 'value'),
-    prevent_initial_call=True)
-def on_solve_clicked(btn, redund_value, num_features, data_key):
-    """Run feature selection when the solve button is clicked."""
-    if not btn:
-        raise PreventUpdate
-    
-    while(True):
-        print("Select Solver [CQM/NL]:", end=" ")
-        selected_solver = str(input())
-        solver = selected_solver.lower()
-        if (solver=="cqm" or solver=="nl"):
-            print(f"{solver} solver detected")
-            break
-        else:
-            print("Input does not match requirements. ")
-    
-    start_time = time.perf_counter()
-    data = datasets[data_key]
-    print('solving...')
-    solution = data.solve_feature_selection(num_features, 1.0 - redund_value, solver)
-    # For testing:
-    # solution = np.random.choice(np.size(data.X, 1), num_features, replace=False)
-    #print("Post solve_feature_selection call")
-    solution = [int(i) for i in solution] # Avoid issues with json and int64
-    print('solution:', solution)
-    score = data.score_indices_cv(solution)
-    end_time = time.perf_counter()
-    elapsed = end_time - start_time
-    print(f"Executed in {elapsed} seconds")
-    #print("passed back solution but not printed")
-    return json.dumps((data_key, solution)), json.dumps((data_key,score)), ''
-
-
-@app.callback(
-    Output('score-div', 'children'),
-    Input('feature-score', 'data'),
+    Output('accuracy-graph', 'figure'),
     Input('data-dropdown', 'value'),
+    Input('feature-score', 'data'),
     prevent_initial_call=False)
-def update_score_figure(feature_score_data, data_key):
-    """Update the plot of feature scores."""
+def update_acc_figure(data_key, feature_score_data):
+    """Update the accuracy score comparison bar plot."""
+    
     score = 0.0
     if feature_score_data:
         feature_score_dataset, score_ = json.loads(feature_score_data)
@@ -293,10 +269,8 @@ def update_score_figure(feature_score_data, data_key):
         'Classifier Accuracy': [data.baseline_cv_score, score]
     })
 
-    # Swap color order so that the blue color in the feature graph corresponds
-    # to the blue color for selected features in the score graph.
     fig = px.bar(df_scores, x="Features", y="Classifier Accuracy", color='Features',
-                 color_discrete_sequence=DWAVE_PRIMARY_COLORS[1::-1])
+                 color_discrete_sequence=DWAVE_PRIMARY_COLORS[1::-1], opacity=1.0)
     fig.update_layout(legend=dict(
         yanchor='bottom',
         y=1.03,
@@ -304,26 +278,48 @@ def update_score_figure(feature_score_data, data_key):
         x=1
     ))
     fig.update_xaxes(visible=False, showticklabels=False)
-    fig.update_yaxes(range=data.score_range)
+    fig.update_yaxes(range=[0,1.0])
     fig.update_layout(font=dict(size=GRAPH_FONT_SIZE))
-    # Decrease bottom margin to bring text description closer:
-    fig.update_layout(margin=dict(b=30))
+    fig.update_traces(marker_line_color='black', marker_line_width=1)
     # Disable zooming:
     fig.layout.xaxis.fixedrange = True
     fig.layout.yaxis.fixedrange = True
 
-    children=[
-        dcc.Graph(
-            id='score-graph',
-            figure=fig,
-            config={'displayModeBar': False},
-        ),
-        html.Div(children='Classifier accuracy as measured using a random '
-                 'forest classifier with 3-fold cross-validation'),
+    # fig.show()
 
-    ]
+    return fig
 
-    return children
+
+@app.callback(
+    Output('feature-solution', 'data'),
+    Output('feature-score', 'data'),
+    Output('loading-solve-output', 'children'),
+    Input('solve-button', 'n_clicks'),
+    State('redundancy-slider', 'value'),
+    State('num-features-slider', 'value'),
+    State('data-dropdown', 'value'),
+    State('solver-dropdown', 'value'),
+    prevent_initial_call=True)
+def on_solve_clicked(btn, redund_value, num_features, data_key, solver):
+    """Run feature selection when the solve button is clicked."""
+    if not btn:
+        raise PreventUpdate
+    
+    # start_time = time.perf_counter()
+    data = datasets[data_key]
+    print('solving...')
+    solution = data.solve_feature_selection(num_features, 1.0 - redund_value, solver)
+    # For testing:
+    # solution = np.random.choice(np.size(data.X, 1), num_features, replace=False)
+    #print("Post solve_feature_selection call")
+    solution = [int(i) for i in solution] # Avoid issues with json and int64
+    print('solution:', solution)
+    score = data.score_indices_cv(solution)
+    # end_time = time.perf_counter()
+    # elapsed = end_time - start_time
+    # print(f"Executed in {elapsed} seconds")
+    #print("passed back solution but not printed")
+    return json.dumps((data_key, solution)), json.dumps((data_key,score)), ''
 
 
 if __name__ == '__main__':

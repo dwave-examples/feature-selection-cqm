@@ -22,12 +22,7 @@ import openml
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
 
-# TODO: temporary fix for circular import issue;
-# remove when dwave-ocean-sdk>8 is released
-#import dwave.cloud.client
-
-#from dwave.plugins.sklearn import SelectFromQuadraticModel
-from transformers import SelectFromQuadraticModel
+from dwave.plugins.sklearn.transformers import SelectFromQuadraticModel
 
 class DataSetBase:
     """Base class for datasets.
@@ -107,8 +102,9 @@ class DataSetBase:
         Returns:
             Array of indices of selected features.
         """
+
         X_new = SelectFromQuadraticModel(num_features=k, alpha=alpha, solver=solver).fit_transform(self.X.values, self.y)
-        #print("Inside data:solve_feature_selection")
+        # print("Inside data:solve_feature_selection")
         return self.get_selected_features(X_new)
 
     def score_indices_cv(self, indices, cv=3):
