@@ -20,6 +20,7 @@ import json
 from dash import Dash, html, dcc, Input, Output, State
 from dash.exceptions import PreventUpdate
 import plotly.express as px
+import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
 import time
@@ -204,7 +205,8 @@ def update_figure(hover_data, redundancy_check, feature_solution_data, data_key)
             color = 'Redundancy'
             hover_cols['Redundancy'] = False
 
-    opacity = 1.0
+    opacity = np.repeat(0.5, len(df))
+     
     mlw = 1
     feature_solution = None
     if feature_solution_data:
@@ -212,18 +214,21 @@ def update_figure(hover_data, redundancy_check, feature_solution_data, data_key)
         if solution_dataset == data_key:
             feature_solution = solution
     if feature_solution:
-        opacity = np.repeat(0.2, len(df))
         opacity[feature_solution] = 1.0
         if data.n < 100:
             mlw = np.repeat(0, len(df))
             mlw[feature_solution] = 3
 
+    marker_colors = [f'rgba(42, 125, 225, {o})' for o in opacity] 
+    # print(marker_colors)
+
     # Custom D-Wave theme color scale.  Alternatively, use #008C82 for the
     # middle color to darken the green
     color_scale = ['#074C91', '#2A7DE1', '#17BEBB', '#FFA143', '#F37820']
-    fig = px.bar(df, x="Feature", y="Feature Relevance", color=color, range_color=[0,1], opacity=opacity,
+    fig = px.bar(df, x="Feature", y="Feature Relevance", color=color, range_color=[0,1], 
                  hover_data=hover_cols, color_continuous_scale=color_scale,
-                 color_discrete_sequence=DWAVE_PRIMARY_COLORS)
+                 color_discrete_sequence=marker_colors)
+    fig.update_traces(marker_opacity=opacity, selector=dict(type='bar'))
     fig.update_traces(marker_line_color='black', marker_line_width=mlw)
     fig.update_layout(margin=dict(t=20))
     fig.update_layout(font=dict(size=GRAPH_FONT_SIZE))
@@ -238,6 +243,10 @@ def update_figure(hover_data, redundancy_check, feature_solution_data, data_key)
     # Disable zooming because hover callback will reset it:
     fig.layout.xaxis.fixedrange = True
     fig.layout.yaxis.fixedrange = True
+
+    for i, trace in enumerate(fig.data):
+        if isinstance(trace, go.Bar):
+            trace.marker.opacity = opacity[i]
 
     # Adjust spacing between the two figures:
     # fig.update_layout(margin=dict(r=30))
@@ -271,6 +280,7 @@ def update_acc_figure(data_key, feature_score_data):
 
     fig = px.bar(df_scores, x="Features", y="Classifier Accuracy", color='Features',
                  color_discrete_sequence=DWAVE_PRIMARY_COLORS[1::-1], opacity=1.0)
+
     fig.update_layout(legend=dict(
         yanchor='bottom',
         y=1.03,
@@ -281,13 +291,13 @@ def update_acc_figure(data_key, feature_score_data):
     fig.update_yaxes(range=[0,1.0])
     fig.update_layout(font=dict(size=GRAPH_FONT_SIZE))
     fig.update_traces(marker_line_color='black', marker_line_width=1)
-    # Disable zooming:
+    # # Disable zooming:
     fig.layout.xaxis.fixedrange = True
     fig.layout.yaxis.fixedrange = True
 
     # fig.show()
 
-    return fig
+    return fig 
 
 
 @app.callback(
@@ -305,7 +315,7 @@ def on_solve_clicked(btn, redund_value, num_features, data_key, solver):
     if not btn:
         raise PreventUpdate
     
-    # start_time = time.perf_counter()
+    start_time = time.perf_counter()
     data = datasets[data_key]
     print('solving...')
     solution = data.solve_feature_selection(num_features, 1.0 - redund_value, solver)
@@ -315,13 +325,13 @@ def on_solve_clicked(btn, redund_value, num_features, data_key, solver):
     solution = [int(i) for i in solution] # Avoid issues with json and int64
     print('solution:', solution)
     score = data.score_indices_cv(solution)
-    # end_time = time.perf_counter()
-    # elapsed = end_time - start_time
-    # print(f"Executed in {elapsed} seconds")
+    end_time = time.perf_counter()
+    elapsed = end_time - start_time
+    print(f"Executed in {elapsed} seconds")
     #print("passed back solution but not printed")
     return json.dumps((data_key, solution)), json.dumps((data_key,score)), ''
 
 
 if __name__ == '__main__':
     # Set dev_tools_ui=False or debug=False to disable the dev tools UI
-    app.run_server(debug=True, dev_tools_ui=False)
+    app.run(debug=True, dev_tools_ui=False)
