@@ -23,8 +23,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
-import time
-
 
 from data import DataSet
 
@@ -115,7 +113,6 @@ app.layout = html.Div(children=[
             dcc.Store(id='feature-solution'),
 
             dcc.Store(id='feature-score', data=0.0),
-
         ],
         style={'display': 'flex'})
 ])
@@ -205,22 +202,23 @@ def update_figure(hover_data, redundancy_check, feature_solution_data, data_key)
             color = 'Redundancy'
             hover_cols['Redundancy'] = False
 
-    opacity = np.repeat(0.5, len(df))
-     
-    mlw = 1
+    opacity = np.repeat(1.0, len(df))
+    if data.n < 50:
+        mlw = np.repeat(1, len(df))
+    else:
+        mlw = np.repeat(0, len(df))
     feature_solution = None
     if feature_solution_data:
         solution_dataset, solution = json.loads(feature_solution_data)
         if solution_dataset == data_key:
             feature_solution = solution
     if feature_solution:
+        opacity = np.repeat(0.3, len(df))
         opacity[feature_solution] = 1.0
-        if data.n < 100:
-            mlw = np.repeat(0, len(df))
+        if data.n < 50:
             mlw[feature_solution] = 3
 
     marker_colors = [f'rgba(42, 125, 225, {o})' for o in opacity] 
-    # print(marker_colors)
 
     # Custom D-Wave theme color scale.  Alternatively, use #008C82 for the
     # middle color to darken the green
@@ -249,10 +247,10 @@ def update_figure(hover_data, redundancy_check, feature_solution_data, data_key)
             trace.marker.opacity = opacity[i]
 
     # Adjust spacing between the two figures:
-    # fig.update_layout(margin=dict(r=30))
+    fig.update_layout(margin=dict(r=30))
 
     # Disable hover info:
-    # fig.update_traces(hoverinfo='none', hovertemplate=None)
+    fig.update_traces(hoverinfo='none', hovertemplate=None)
 
     return fig
 
@@ -295,8 +293,6 @@ def update_acc_figure(data_key, feature_score_data):
     fig.layout.xaxis.fixedrange = True
     fig.layout.yaxis.fixedrange = True
 
-    # fig.show()
-
     return fig 
 
 
@@ -314,8 +310,7 @@ def on_solve_clicked(btn, redund_value, num_features, data_key, solver):
     """Run feature selection when the solve button is clicked."""
     if not btn:
         raise PreventUpdate
-    
-    start_time = time.perf_counter()
+
     data = datasets[data_key]
     print('solving...')
     solution = data.solve_feature_selection(num_features, 1.0 - redund_value, solver)
@@ -325,9 +320,7 @@ def on_solve_clicked(btn, redund_value, num_features, data_key, solver):
     solution = [int(i) for i in solution] # Avoid issues with json and int64
     print('solution:', solution)
     score = data.score_indices_cv(solution)
-    end_time = time.perf_counter()
-    elapsed = end_time - start_time
-    print(f"Executed in {elapsed} seconds")
+
     #print("passed back solution but not printed")
     return json.dumps((data_key, solution)), json.dumps((data_key,score)), ''
 
