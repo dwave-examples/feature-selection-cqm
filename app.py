@@ -19,6 +19,7 @@ import json
 
 from dash import Dash, html, dcc, Input, Output, State
 from dash.exceptions import PreventUpdate
+import plotly.colors
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
@@ -218,18 +219,31 @@ def update_figure(hover_data, redundancy_check, feature_solution_data, data_key)
         if data.n < 50:
             mlw[feature_solution] = 3
 
-    marker_colors = [f'rgba(42, 125, 225, {o})' for o in opacity] 
-
     # Custom D-Wave theme color scale.  Alternatively, use #008C82 for the
     # middle color to darken the green
     color_scale = ['#074C91', '#2A7DE1', '#17BEBB', '#FFA143', '#F37820']
-    fig = px.bar(df, x="Feature", y="Feature Relevance", color=color, range_color=[0,1], 
-                 hover_data=hover_cols, color_continuous_scale=color_scale,
-                 color_discrete_sequence=marker_colors)
-    fig.update_traces(marker_opacity=opacity, selector=dict(type='bar'))
+    display_text = []
+    if hover_data and redundancy_check:
+        color_data = df['Redundancy'].values
+        normalized_color_data = (color_data - np.min(color_data)) / (np.max(color_data) - np.min(color_data))
+        rgba_colors = plotly.colors.sample_colorscale(color_scale, normalized_color_data, colortype='rgb')
+        for i in range(len(rgba_colors)):
+            rgba_colors[i] = 'rgba' + rgba_colors[i][3:-1] + ', ' + str(opacity[i]) + ')'
+        if data.n < 30:
+            display_text = [round(i.item(),2) for i in color_data]
+    else:
+        rgba_colors = [f'rgba(42, 125, 225, {o})' for o in opacity]
+
+    rgba_map = {df["Feature"][i]: rgba_colors[i] for i in range(len(rgba_colors))}
+
+    fig = px.bar(df, x="Feature", y="Feature Relevance",           
+                 color_discrete_sequence=['#2A7DE1'],
+                 hover_data=hover_cols, color_discrete_map=rgba_map, text=color)
     fig.update_traces(marker_line_color='black', marker_line_width=mlw)
     fig.update_layout(margin=dict(t=20))
     fig.update_layout(font=dict(size=GRAPH_FONT_SIZE))
+    fig.update_traces(marker_color=rgba_colors, selector=dict(type='bar'))
+    fig.update_traces(texttemplate=display_text, textposition='outside')
 
     # Modify axis labels:
     fig.update_layout(yaxis_title='Feature Relevance to Outcome')
@@ -241,10 +255,6 @@ def update_figure(hover_data, redundancy_check, feature_solution_data, data_key)
     # Disable zooming because hover callback will reset it:
     fig.layout.xaxis.fixedrange = True
     fig.layout.yaxis.fixedrange = True
-
-    for i, trace in enumerate(fig.data):
-        if isinstance(trace, go.Bar):
-            trace.marker.opacity = opacity[i]
 
     # Adjust spacing between the two figures:
     fig.update_layout(margin=dict(r=30))
