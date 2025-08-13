@@ -71,7 +71,7 @@ Then hover the mouse over any of the bars.  The colors of all bars will be
 dynamically updated to show the similarity (redundancy) against the feature that
 is currently under the mouse. A higher value (closer to 1.0) indicates that the
 feature is very redundant with the current feature, while a lower value
-(closer to 0.0) indicates a feature that is less rundant and may potentially
+(closer to 0.0) indicates a feature that is less redundant and may potentially
 provide new information for the model.
 
 Click on the `Solve` button to run the feature selection with the given settings
