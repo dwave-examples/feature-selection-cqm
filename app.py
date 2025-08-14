@@ -21,7 +21,6 @@ from dash import Dash, html, dcc, Input, Output, State
 from dash.exceptions import PreventUpdate
 import plotly.colors
 import plotly.express as px
-import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
 
@@ -203,6 +202,8 @@ def update_figure(hover_data, redundancy_check, feature_solution_data, data_key)
             color = 'Redundancy'
             hover_cols['Redundancy'] = False
 
+    # If displaying a solution, show selected feature as solid and non-selected
+    # features as transparent
     opacity = np.repeat(1.0, len(df))
     if data.n < 50:
         mlw = np.repeat(1, len(df))
@@ -222,6 +223,9 @@ def update_figure(hover_data, redundancy_check, feature_solution_data, data_key)
     # Custom D-Wave theme color scale.  Alternatively, use #008C82 for the
     # middle color to darken the green
     color_scale = ['#074C91', '#2A7DE1', '#17BEBB', '#FFA143', '#F37820']
+
+    # Manually calculate the continuous color map to show redundancy.
+    # This is required for different opacity levels per bar.
     display_text = []
     if hover_data and redundancy_check:
         color_data = df['Redundancy'].values
@@ -236,6 +240,7 @@ def update_figure(hover_data, redundancy_check, feature_solution_data, data_key)
 
     rgba_map = {df["Feature"][i]: rgba_colors[i] for i in range(len(rgba_colors))}
 
+    # Plot the bar graph
     fig = px.bar(df, x="Feature", y="Feature Relevance",           
                  color_discrete_sequence=['#2A7DE1'],
                  hover_data=hover_cols, color_discrete_map=rgba_map, text=color)
@@ -274,6 +279,8 @@ def update_acc_figure(data_key, feature_score_data):
     """Update the accuracy score comparison bar plot."""
     
     score = 0.0
+
+    # Pull the solution score (if available)
     if feature_score_data:
         feature_score_dataset, score_ = json.loads(feature_score_data)
         if feature_score_dataset == data_key:
@@ -299,7 +306,8 @@ def update_acc_figure(data_key, feature_score_data):
     fig.update_yaxes(range=[0,1.0])
     fig.update_layout(font=dict(size=GRAPH_FONT_SIZE))
     fig.update_traces(marker_line_color='black', marker_line_width=1)
-    # # Disable zooming:
+    
+    # Disable zooming:
     fig.layout.xaxis.fixedrange = True
     fig.layout.yaxis.fixedrange = True
 
