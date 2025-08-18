@@ -2,7 +2,7 @@
   https://img.shields.io/badge/Open%20in%20GitHub%20Codespaces-333?logo=github)](
   https://codespaces.new/dwave-examples/feature-selection-cqm?quickstart=1)
 
-# Feature Selection for NL & CQM
+# Feature Selection Using Hybrid Quantum Solvers
 
 This demo showcases feature selection using a nonlinear (NL) model
 or a constrained quadratic model (CQM) via
@@ -118,7 +118,7 @@ These are the parameters of the problem:
   - 1: places the maximum weight on the quality of the features
 
 ### Variables
-- `x_binary`: binary variable that shows a list of which features are selected(1) and not selected(0)
+- `x_binary`: binary variable that shows a list of which features are selected (1) and not selected (0)
 
 ### Objective
 The objective function has two terms. The first term minimizes the correlation between 

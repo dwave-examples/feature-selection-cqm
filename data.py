@@ -104,7 +104,6 @@ class DataSetBase:
         """
 
         X_new = SelectFromQuadraticModel(num_features=k, alpha=alpha, solver=solver).fit_transform(self.X.values, self.y)
-        # print("Inside data:solve_feature_selection")
         return self.get_selected_features(X_new)
 
     def score_indices_cv(self, indices, cv=3):
@@ -133,7 +132,6 @@ class DataSetBase:
             float: Average cross-validation accuracy score across `nreps` repetitions.
         """
         indices = list(range(np.size(self.X, 1)))
-        print(f"In data: {indices}")
         return np.mean([self.score_indices_cv(indices) for i in range(reps)])
 
 

@@ -65,7 +65,7 @@ app.layout = html.Div(children=[
         children=[
             html.H1(children='Feature Selection',
                     className='header-title'),
-            html.P(children="A hybrid model for feature selection "
+            html.P(children="A hybrid quantum model for feature selection "
                    "using the Leap hybrid solver service",
                    className='header-description'),
         ],
@@ -107,7 +107,7 @@ app.layout = html.Div(children=[
                 ),
                 html.Div(children=[
                     dcc.Graph(id='feature-graph', style={'flex': 1}, responsive=True),
-                    dcc.Graph(id='accuracy-graph', style={'flex-basis': '230px'}, responsive=True, config={'displayModeBar': False}),
+                    dcc.Graph(id='accuracy-graph', style={'flexBasis': '230px'}, responsive=True, config={'displayModeBar': False}),
                 ], style={'display': 'flex'}),
             ], style={'flex': 1}),
             dcc.Store(id='feature-solution'),
@@ -205,10 +205,8 @@ def update_figure(hover_data, redundancy_check, feature_solution_data, data_key)
     # If displaying a solution, show selected feature as solid and non-selected
     # features as transparent
     opacity = np.repeat(1.0, len(df))
-    if data.n < 50:
-        mlw = np.repeat(1, len(df))
-    else:
-        mlw = np.repeat(0, len(df))
+    mlw = np.repeat(1 if data.n < 50 else 0, len(df))
+    
     feature_solution = None
     if feature_solution_data:
         solution_dataset, solution = json.loads(feature_solution_data)

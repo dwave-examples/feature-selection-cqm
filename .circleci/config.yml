@@ -10,3 +10,4 @@ workflows:
       - dwave/test-linux
       - dwave/test-osx
       - dwave/test-win
+      
