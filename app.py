@@ -229,8 +229,10 @@ def update_figure(hover_data, redundancy_check, feature_solution_data, data_key)
         color_data = df['Redundancy'].values
         normalized_color_data = (color_data - np.min(color_data)) / (np.max(color_data) - np.min(color_data))
         rgba_colors = plotly.colors.sample_colorscale(color_scale, normalized_color_data, colortype='rgb')
+        
         for i in range(len(rgba_colors)):
             rgba_colors[i] = 'rgba' + rgba_colors[i][3:-1] + ', ' + str(opacity[i]) + ')'
+        
         if data.n < 30:
             display_text = [round(i.item(),2) for i in color_data]
     else:

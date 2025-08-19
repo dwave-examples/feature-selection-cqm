@@ -97,7 +97,7 @@ class DataSetBase:
                 Parameter between 0 and 1 that defines the relative weight of
                 linear and quadratic coefficients.
             solver (str):
-                String dictating use of eith CQM or NL
+                String dictating use of either CQM or NL
 
         Returns:
             Array of indices of selected features.
