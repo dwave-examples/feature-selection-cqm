@@ -1,4 +1,4 @@
-# Copyright 2025 D-Wave Systems Inc.
+# Copyright 2025 D-Wave
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -97,7 +97,7 @@ class DataSetBase:
                 Parameter between 0 and 1 that defines the relative weight of
                 linear and quadratic coefficients.
             solver (str):
-                String dictating use of either CQM or NL
+                String dictating use of either CQM or NL.
 
         Returns:
             Array of indices of selected features.

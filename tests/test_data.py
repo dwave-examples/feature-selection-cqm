@@ -1,4 +1,4 @@
-# Copyright 2025 D-Wave Systems Inc.
+# Copyright 2025 D-Wave
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,6 +38,14 @@ class TestData(unittest.TestCase):
 
         titanic.solve_feature_selection(k=3, alpha=0.5, solver="nl")
         mock_select.assert_called_with(num_features=3, alpha=0.5, solver="nl")
+        mock_get.assert_called_with(
+            mock_select(num_features=3, alpha=0.5).fit_transform(
+                titanic.X.values, titanic.y
+            )
+        )
+
+        titanic.solve_feature_selection(k=3, alpha=0.5, solver="cqm")
+        mock_select.assert_called_with(num_features=3, alpha=0.5, solver="cqm")
         mock_get.assert_called_with(
             mock_select(num_features=3, alpha=0.5).fit_transform(
                 titanic.X.values, titanic.y

@@ -1,4 +1,4 @@
-# Copyright 2025 D-Wave Systems Inc.
+# Copyright 2025 D-Wave
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -303,7 +303,7 @@ def update_acc_figure(data_key, feature_score_data):
         x=1
     ))
     fig.update_xaxes(visible=False, showticklabels=False)
-    fig.update_yaxes(range=[0,1.0])
+    fig.update_yaxes(range=[0, 1.0])
     fig.update_layout(font=dict(size=GRAPH_FONT_SIZE))
     fig.update_traces(marker_line_color='black', marker_line_width=1)
     
@@ -332,14 +332,11 @@ def on_solve_clicked(btn, redund_value, num_features, data_key, solver):
     data = datasets[data_key]
     print('solving...')
     solution = data.solve_feature_selection(num_features, 1.0 - redund_value, solver)
-    # For testing:
-    # solution = np.random.choice(np.size(data.X, 1), num_features, replace=False)
-    #print("Post solve_feature_selection call")
+    
     solution = [int(i) for i in solution] # Avoid issues with json and int64
     print('solution:', solution)
     score = data.score_indices_cv(solution)
 
-    #print("passed back solution but not printed")
     return json.dumps((data_key, solution)), json.dumps((data_key,score)), ''
 
 
