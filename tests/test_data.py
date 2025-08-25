@@ -1,4 +1,4 @@
-# Copyright 2023 D-Wave Systems Inc.
+# Copyright 2025 D-Wave
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,13 +15,19 @@
 import numpy as np
 import unittest
 from unittest.mock import patch
+from parameterized import parameterized
 import data
 
 
 class TestData(unittest.TestCase):
+
+    @parameterized.expand([
+        ("cqm"),
+        ("nl"),
+    ])
     @patch("data.SelectFromQuadraticModel")
     @patch("data.DataSetBase.get_selected_features")
-    def test_titanic_class(self, mock_get, mock_select):
+    def test_titanic_class(self, solver, mock_get, mock_select):
         titanic = data.Titanic()
         relevance = titanic.get_relevance()
 
@@ -36,8 +42,8 @@ class TestData(unittest.TestCase):
         from_get_redundancy = titanic.get_redundancy()
         self.assertTrue(np.array_equal(redundancy, from_get_redundancy))
 
-        titanic.solve_feature_selection(k=3, alpha=0.5)
-        mock_select.assert_called_with(num_features=3, alpha=0.5)
+        titanic.solve_feature_selection(k=3, alpha=0.5, solver=solver)
+        mock_select.assert_called_with(num_features=3, alpha=0.5, solver=solver)
         mock_get.assert_called_with(
             mock_select(num_features=3, alpha=0.5).fit_transform(
                 titanic.X.values, titanic.y
@@ -54,9 +60,13 @@ class TestData(unittest.TestCase):
         self.assertLessEqual(baseline_score, 1.0)
         self.assertGreaterEqual(baseline_score, 0)
 
+    @parameterized.expand([
+        ("cqm"),
+        ("nl"),
+    ])
     @patch("data.SelectFromQuadraticModel")
     @patch("data.DataSetBase.get_selected_features")
-    def test_scene_class(self, mock_get, mock_select):
+    def test_scene_class(self, solver, mock_get, mock_select):
         scene = data.Scene()
         relevance = scene.get_relevance()
 
@@ -71,8 +81,8 @@ class TestData(unittest.TestCase):
         from_get_redundancy = scene.get_redundancy()
         self.assertTrue(np.array_equal(redundancy, from_get_redundancy))
 
-        scene.solve_feature_selection(k=3, alpha=0.5)
-        mock_select.assert_called_with(num_features=3, alpha=0.5)
+        scene.solve_feature_selection(k=3, alpha=0.5, solver=solver)
+        mock_select.assert_called_with(num_features=3, alpha=0.5, solver=solver)
         mock_get.assert_called_with(
             mock_select(num_features=3, alpha=0.5).fit_transform(
                 scene.X.values, scene.y

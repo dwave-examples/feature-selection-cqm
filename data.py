@@ -1,4 +1,4 @@
-# Copyright 2023 D-Wave Systems Inc.
+# Copyright 2025 D-Wave
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,12 +22,7 @@ import openml
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
 
-# TODO: temporary fix for circular import issue;
-# remove when dwave-ocean-sdk>8 is released
-import dwave.cloud.client
-
-from dwave.plugins.sklearn import SelectFromQuadraticModel
-
+from dwave.plugins.sklearn.transformers import SelectFromQuadraticModel
 
 class DataSetBase:
     """Base class for datasets.
@@ -92,7 +87,7 @@ class DataSetBase:
                     break
         return feature_names
 
-    def solve_feature_selection(self, k, alpha):
+    def solve_feature_selection(self, k, alpha, solver):
         """Construct and solve feature selection CQM using plugin.
 
         Args:
@@ -101,11 +96,14 @@ class DataSetBase:
             alpha (float):
                 Parameter between 0 and 1 that defines the relative weight of
                 linear and quadratic coefficients.
+            solver (str):
+                String dictating use of either CQM or NL.
 
         Returns:
             Array of indices of selected features.
         """
-        X_new = SelectFromQuadraticModel(num_features=k, alpha=alpha).fit_transform(self.X.values, self.y)
+
+        X_new = SelectFromQuadraticModel(num_features=k, alpha=alpha, solver=solver).fit_transform(self.X.values, self.y)
         return self.get_selected_features(X_new)
 
     def score_indices_cv(self, indices, cv=3):
@@ -170,7 +168,6 @@ class Scene(DataSetBase):
         self.default_redundancy_penalty = 0.4
 
         self.n = np.size(self.X, 1)
-
 
 def DataSet(name):
     """Return instance of specified DataSet class.

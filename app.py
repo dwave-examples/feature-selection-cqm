@@ -1,4 +1,4 @@
-# Copyright 2023 D-Wave Systems Inc.
+# Copyright 2025 D-Wave
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import json
 
 from dash import Dash, html, dcc, Input, Output, State
 from dash.exceptions import PreventUpdate
+import plotly.colors
 import plotly.express as px
 import pandas as pd
 import numpy as np
@@ -28,7 +29,12 @@ from data import DataSet
 
 DATASET_NAMES = [
     {'label': 'Titanic Survival', 'value': 'titanic'},
-    {'label': 'Scene', 'value': 'scene'},
+    {'label': 'Scene', 'value': 'scene'}
+]
+
+SOLVER_NAMES = [
+    {'label': 'CQM Hybrid', 'value': 'cqm'},
+    {'label': 'NL Hybrid', 'value': 'nl'}
 ]
 
 GRAPH_FONT_SIZE = 14
@@ -59,7 +65,7 @@ app.layout = html.Div(children=[
         children=[
             html.H1(children='Feature Selection',
                     className='header-title'),
-            html.P(children="A constrained quadratic model for feature selection "
+            html.P(children="A hybrid quantum model for feature selection "
                    "using the Leap hybrid solver service",
                    className='header-description'),
         ],
@@ -80,6 +86,17 @@ app.layout = html.Div(children=[
                     clearable=False,
                     id='data-dropdown'),
 
+                html.Br(),
+                
+                html.Div(children='Solver',
+                         className='menu-title'),
+                dcc.Dropdown(
+                    options=SOLVER_NAMES,
+                    value='cqm',
+                    searchable=False,
+                    clearable=False,
+                    id='solver-dropdown'),
+
                 html.Div(id='solve-input-div'),
             ], style={'marginLeft': '20px', 'marginRight': '100px'}),
 
@@ -90,13 +107,12 @@ app.layout = html.Div(children=[
                 ),
                 html.Div(children=[
                     dcc.Graph(id='feature-graph', style={'flex': 1}, responsive=True),
-                    html.Div(id='score-div', style={'flex-basis': '230px'}),
+                    dcc.Graph(id='accuracy-graph', style={'flexBasis': '230px'}, responsive=True, config={'displayModeBar': False}),
                 ], style={'display': 'flex'}),
             ], style={'flex': 1}),
             dcc.Store(id='feature-solution'),
 
-            dcc.Store(id='feature-score'),
-
+            dcc.Store(id='feature-score', data=0.0),
         ],
         style={'display': 'flex'})
 ])
@@ -186,29 +202,53 @@ def update_figure(hover_data, redundancy_check, feature_solution_data, data_key)
             color = 'Redundancy'
             hover_cols['Redundancy'] = False
 
-    opacity = 1.0
-    mlw = 0
+    # If displaying a solution, show selected feature as solid and non-selected
+    # features as transparent
+    opacity = np.repeat(1.0, len(df))
+    mlw = np.repeat(1 if data.n < 50 else 0, len(df))
+    
     feature_solution = None
     if feature_solution_data:
         solution_dataset, solution = json.loads(feature_solution_data)
         if solution_dataset == data_key:
             feature_solution = solution
     if feature_solution:
-        opacity = np.repeat(0.2, len(df))
+        opacity = np.repeat(0.3, len(df))
         opacity[feature_solution] = 1.0
-        if data.n < 100:
-            mlw = np.repeat(0, len(df))
+        if data.n < 50:
             mlw[feature_solution] = 3
 
     # Custom D-Wave theme color scale.  Alternatively, use #008C82 for the
     # middle color to darken the green
     color_scale = ['#074C91', '#2A7DE1', '#17BEBB', '#FFA143', '#F37820']
-    fig = px.bar(df, x="Feature", y="Feature Relevance", color=color, range_color=[0,1], opacity=opacity,
-                 hover_data=hover_cols, color_continuous_scale=color_scale,
-                 color_discrete_sequence=DWAVE_PRIMARY_COLORS)
+
+    # Manually calculate the continuous color map to show redundancy.
+    # This is required for different opacity levels per bar.
+    display_text = []
+    if hover_data and redundancy_check:
+        color_data = df['Redundancy'].values
+        normalized_color_data = (color_data - np.min(color_data)) / (np.max(color_data) - np.min(color_data))
+        rgba_colors = plotly.colors.sample_colorscale(color_scale, normalized_color_data, colortype='rgb')
+        
+        for i in range(len(rgba_colors)):
+            rgba_colors[i] = 'rgba' + rgba_colors[i][3:-1] + ', ' + str(opacity[i]) + ')'
+        
+        if data.n < 30:
+            display_text = [round(i.item(),2) for i in color_data]
+    else:
+        rgba_colors = [f'rgba(42, 125, 225, {o})' for o in opacity]
+
+    rgba_map = {df["Feature"][i]: rgba_colors[i] for i in range(len(rgba_colors))}
+
+    # Plot the bar graph
+    fig = px.bar(df, x="Feature", y="Feature Relevance",           
+                 color_discrete_sequence=['#2A7DE1'],
+                 hover_data=hover_cols, color_discrete_map=rgba_map, text=color)
     fig.update_traces(marker_line_color='black', marker_line_width=mlw)
     fig.update_layout(margin=dict(t=20))
     fig.update_layout(font=dict(size=GRAPH_FONT_SIZE))
+    fig.update_traces(marker_color=rgba_colors, selector=dict(type='bar'))
+    fig.update_traces(texttemplate=display_text, textposition='outside')
 
     # Modify axis labels:
     fig.update_layout(yaxis_title='Feature Relevance to Outcome')
@@ -222,46 +262,25 @@ def update_figure(hover_data, redundancy_check, feature_solution_data, data_key)
     fig.layout.yaxis.fixedrange = True
 
     # Adjust spacing between the two figures:
-    # fig.update_layout(margin=dict(r=30))
+    fig.update_layout(margin=dict(r=30))
 
     # Disable hover info:
-    # fig.update_traces(hoverinfo='none', hovertemplate=None)
+    fig.update_traces(hoverinfo='none', hovertemplate=None)
 
     return fig
 
 
 @app.callback(
-    Output('feature-solution', 'data'),
-    Output('feature-score', 'data'),
-    Output('loading-solve-output', 'children'),
-    Input('solve-button', 'n_clicks'),
-    State('redundancy-slider', 'value'),
-    State('num-features-slider', 'value'),
-    State('data-dropdown', 'value'),
-    prevent_initial_call=True)
-def on_solve_clicked(btn, redund_value, num_features, data_key):
-    """Run feature selection when the solve button is clicked."""
-    if not btn:
-        raise PreventUpdate
-    data = datasets[data_key]
-    print('solving...')
-    solution = data.solve_feature_selection(num_features, 1.0 - redund_value)
-    # For testing:
-    # solution = np.random.choice(np.size(data.X, 1), num_features, replace=False)
-    solution = [int(i) for i in solution] # Avoid issues with json and int64
-    print('solution:', solution)
-    score = data.score_indices_cv(solution)
-    return json.dumps((data_key, solution)), json.dumps((data_key,score)), ''
-
-
-@app.callback(
-    Output('score-div', 'children'),
-    Input('feature-score', 'data'),
+    Output('accuracy-graph', 'figure'),
     Input('data-dropdown', 'value'),
+    Input('feature-score', 'data'),
     prevent_initial_call=False)
-def update_score_figure(feature_score_data, data_key):
-    """Update the plot of feature scores."""
+def update_acc_figure(data_key, feature_score_data):
+    """Update the accuracy score comparison bar plot."""
+    
     score = 0.0
+
+    # Pull the solution score (if available)
     if feature_score_data:
         feature_score_dataset, score_ = json.loads(feature_score_data)
         if feature_score_dataset == data_key:
@@ -274,10 +293,9 @@ def update_score_figure(feature_score_data, data_key):
         'Classifier Accuracy': [data.baseline_cv_score, score]
     })
 
-    # Swap color order so that the blue color in the feature graph corresponds
-    # to the blue color for selected features in the score graph.
     fig = px.bar(df_scores, x="Features", y="Classifier Accuracy", color='Features',
-                 color_discrete_sequence=DWAVE_PRIMARY_COLORS[1::-1])
+                 color_discrete_sequence=DWAVE_PRIMARY_COLORS[1::-1], opacity=1.0)
+
     fig.update_layout(legend=dict(
         yanchor='bottom',
         y=1.03,
@@ -285,28 +303,43 @@ def update_score_figure(feature_score_data, data_key):
         x=1
     ))
     fig.update_xaxes(visible=False, showticklabels=False)
-    fig.update_yaxes(range=data.score_range)
+    fig.update_yaxes(range=[0, 1.0])
     fig.update_layout(font=dict(size=GRAPH_FONT_SIZE))
-    # Decrease bottom margin to bring text description closer:
-    fig.update_layout(margin=dict(b=30))
+    fig.update_traces(marker_line_color='black', marker_line_width=1)
+    
     # Disable zooming:
     fig.layout.xaxis.fixedrange = True
     fig.layout.yaxis.fixedrange = True
 
-    children=[
-        dcc.Graph(
-            id='score-graph',
-            figure=fig,
-            config={'displayModeBar': False},
-        ),
-        html.Div(children='Classifier accuracy as measured using a random '
-                 'forest classifier with 3-fold cross-validation'),
+    return fig 
 
-    ]
 
-    return children
+@app.callback(
+    Output('feature-solution', 'data'),
+    Output('feature-score', 'data'),
+    Output('loading-solve-output', 'children'),
+    Input('solve-button', 'n_clicks'),
+    State('redundancy-slider', 'value'),
+    State('num-features-slider', 'value'),
+    State('data-dropdown', 'value'),
+    State('solver-dropdown', 'value'),
+    prevent_initial_call=True)
+def on_solve_clicked(btn, redund_value, num_features, data_key, solver):
+    """Run feature selection when the solve button is clicked."""
+    if not btn:
+        raise PreventUpdate
+
+    data = datasets[data_key]
+    print('solving...')
+    solution = data.solve_feature_selection(num_features, 1.0 - redund_value, solver)
+    
+    solution = [int(i) for i in solution] # Avoid issues with json and int64
+    print('solution:', solution)
+    score = data.score_indices_cv(solution)
+
+    return json.dumps((data_key, solution)), json.dumps((data_key,score)), ''
 
 
 if __name__ == '__main__':
     # Set dev_tools_ui=False or debug=False to disable the dev tools UI
-    app.run_server(debug=True, dev_tools_ui=False)
+    app.run(debug=True, dev_tools_ui=False)

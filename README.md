@@ -2,10 +2,10 @@
   https://img.shields.io/badge/Open%20in%20GitHub%20Codespaces-333?logo=github)](
   https://codespaces.new/dwave-examples/feature-selection-cqm?quickstart=1)
 
-# Feature Selection for CQM
+# Feature Selection Using Hybrid Quantum Solvers
 
-This demo showcases feature selection using the constrained quadratic model
-(CQM) solver via
+This demo showcases feature selection using a nonlinear (NL) model
+or a constrained quadratic model (CQM) via
 [D-Wave's scikit-learn plug-in](https://github.com/dwavesystems/dwave-scikit-learn-plugin).
 The demo can be used with two different datasets:
 
@@ -22,7 +22,7 @@ The demo can be used with two different datasets:
   illustrates the impact of feature redundancy.
 
 ---
-**Note:** This example solves a CQM on a Leap&trade; quantum-classical
+**Note:** This example solves a CQM or NL model on a Leap&trade; quantum-classical
 [hybrid solver](https://docs.dwavequantum.com/en/latest/concepts/hybrid.html).
 The [MIQUBO Method of Feature Selection](https://github.com/dwave-examples/mutual-information-feature-selection)
 example solves this same problem using a
@@ -69,7 +69,10 @@ A dropdown menu is provided to choose the dataset.
 To visualize feature redundancy, first activate the "Show redundancy" check box.
 Then hover the mouse over any of the bars.  The colors of all bars will be
 dynamically updated to show the similarity (redundancy) against the feature that
-is currently under the mouse.
+is currently under the mouse. A higher value (closer to 1.0) indicates that the
+feature is very redundant with the current feature, while a lower value
+(closer to 0.0) indicates a feature that is less redundant and may potentially
+provide new information for the model.
 
 Click on the `Solve` button to run the feature selection with the given settings
 (each dataset is initialized with reasonable default settings for the number of
@@ -92,7 +95,7 @@ to promote a strong relationship.
 
 ## Model Overview
 
-In this example we use the Titanic and Scene datasets to generate a constrained quadratic model. 
+In this example we use the Titanic and Scene datasets to generate a CQM or NL model. 
 The datasets are assumed to be clean, meaning there are no missing entries or repeated features. 
 The features of the dataset are used to build a correlation matrix which compares the features to 
 each other as well as a correlation matrix that compares the features to the target variable. Those 
@@ -110,24 +113,25 @@ the feature selection model is contained within
 These are the parameters of the problem:
 
 - `num_features`: the number of features to select 
-- `redund_val`: used to determine factor applied to redundancy terms
+- `redund_value`: used to determine factor applied to redundancy terms
   - 0: features will be selected as to minimize the redundancy without any consideration to quality
   - 1: places the maximum weight on the quality of the features
 
 ### Variables
-- `x_i`: binary variable that shows if feature `i` is selected
-
+- `x_binary`: binary variable that shows a list of which features are selected (1) and not selected (0)
 
 ### Objective
 The objective function has two terms. The first term minimizes the correlation between 
 chosen features in the dataset (this term is weighted by the redundancy parameter, `redund_val`). The 
 second term maximizes the correlation between the features and the target variable. 
+
 ### Constraints
 A single constraint is used to require that the model select a number of features equal to the `num_features`
 parameter.
+
 ## Code Overview
 
-Given a selected value for the `num_features` and `redund_val` sliders, the code proceeds as follows:
+Given a selected value for the `num_features` and `redund_value` sliders, the code proceeds as follows:
 
 * The selected dataset and parameters are passed to D-Wave's feature selection scikit-learn plugin
 * The resulting selected features are returned from the plugin
